@@ -1,52 +1,63 @@
 -- postgreSQL
-CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+CREATE TABLE account (
+    account_id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 
-CREATE TABLE images(
-    image_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    score INTEGER NOT NULL DEFAULT 0,
+CREATE TABLE post (
+    post_id SERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
-    source VARCHAR(255) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    source VARCHAR(255),
+    score INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
 
-CREATE TABLE tags(
+CREATE TABLE image (
+    image_id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    preview_url VARCHAR(255) NOT NULL,
+    sample_url VARCHAR(255) NOT NULL,
+    original_url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES post(post_id)
+);
+
+CREATE TABLE tag (
     tag_id SERIAL PRIMARY KEY,
-    tag_type VARCHAR(255) NOT NULL,
-    tag_name VARCHAR(255) NOT NULL,
-    tag_count INTEGER NOT NULL DEFAULT 0
+    type INTEGER NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    count INTEGER NOT NULL
 );
 
-CREATE TABLE comments(
-    comment_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    image_id INTEGER NOT NULL,
-    comment VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (image_id) REFERENCES images(image_id)
-);
-
-CREATE TABLE image_tags(
-    image_id INTEGER NOT NULL,
+CREATE TABLE post_tag (
+    post_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
-    FOREIGN KEY (image_id) REFERENCES images(image_id),
-    FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
+    FOREIGN KEY (tag_id) REFERENCES tag(tag_id)
 );
 
-CREATE TABLE votes(
-    user_id INTEGER NOT NULL,
-    image_id INTEGER NOT NULL,
-    vote_value INTEGER NOT NULL,
-    PRIMARY KEY (user_id, image_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (image_id) REFERENCES images(image_id)
+CREATE TABLE comment (
+    comment_id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL,
+    account_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
+    FOREIGN KEY (account_id) REFERENCES account(account_id)
+);
+
+CREATE TABLE vote (
+    post_id INTEGER NOT NULL,
+    account_id INTEGER NOT NULL,
+    value INTEGER NOT NULL,
+    PRIMARY KEY (post_id, account_id),
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
+    FOREIGN KEY (account_id) REFERENCES account(account_id)
 );

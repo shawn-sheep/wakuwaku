@@ -1,50 +1,96 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
-from model import db, app, Account
+from flask_login import LoginManager
+from model import Account, db, app
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
-from flask import request, redirect, url_for
-from flask_login import login_user, logout_user, login_required
+@login_manager.user_loader
+def load_user(user_id):
+    return Account.query.get(int(user_id))
 
 
-@app.route("/register", methods=["POST"])
+from flask import request, jsonify
+from flask_login import login_user, logout_user
+
+
 @app.route("/register", methods=["POST"])
 def register():
-    username = request.form.get("username")
-    password = request.form.get("password")
-    email = request.form.get("email")
+    username = request.json.get("username")
+    password = request.json.get("password")
+    email = request.json.get("email")
 
-    user = Account()
-    user.username = username
-    user.email = email
-    user.set_password(password)
+    if username is None or password is None or email is None:
+        return jsonify({"message": "username, password and email are required"}), 400
 
-    db.session.add(user)
+    if Account.query.filter_by(username=username).first() is not None:
+        return jsonify({"message": "username already exists"}), 400
+
+    account = Account(username=username, email=email)
+    account.set_password(password)
+
+    db.session.add(account)
     db.session.commit()
 
-    return redirect(url_for("login"))
+    return (
+        jsonify(
+            {"message": "user created successfully", "user_id": account.account_id}
+        ),
+        201,
+    )
 
 
 @app.route("/login", methods=["POST"])
 def login():
-    username = request.form.get("username")
-    password = request.form.get("password")
+    username = request.json.get("username")
+    password = request.json.get("password")
 
-    user = Account.query.filter_by(username=username).first()
+    if username is None or password is None:
+        return jsonify({"message": "username and password are required"}), 400
 
-    if user is None or not user.check_password(password):
-        return "Invalid username or password"
+    account = Account.query.filter_by(username=username).first()
 
-    login_user(user)
+    if account is None or not account.check_password(password):
+        return jsonify({"message": "invalid username or password"}), 400
 
-    return redirect(url_for("index"))
+    login_user(account)
+    return jsonify({"message": "logged in successfully"}), 200
 
 
 @app.route("/logout")
-@login_required
 def logout():
     logout_user()
-    return redirect(url_for("index"))
+    return jsonify({"message": "logged out successfully"}), 200
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+from flask_login import login_required, current_user
+
+
+@app.route("/user", methods=["GET"])
+@login_required
+def get_user_info():
+    return (
+        jsonify(
+            {
+                "username": current_user.username,
+                "email": current_user.email,
+                "created_at": current_user.created_at,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/user", methods=["PUT"])
+@login_required
+def update_user_info():
+    username = request.json.get("username")
+    email = request.json.get("email")
+
+    if username is not None:
+        current_user.username = username
+    if email is not None:
+        current_user.email = email
+
+    db.session.commit()
+    return jsonify({"message": "user updated successfully"}), 200
