@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://root:GaussdbPassword@123@119.3.126.0:5432/postgres"
+] = "postgresql://root:GaussdbPassword%40123@119.3.126.0:5432/postgres"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -31,7 +31,7 @@ class Account(UserMixin, db.Model):
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
-    def check_password(self, password):
+    def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
 
     # This method is required by Flask-Login to know the unique identifier for the user.

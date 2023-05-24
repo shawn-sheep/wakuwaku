@@ -1,0 +1,35 @@
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+    "username": "yhzx233",
+    "password": "1919810",
+    "email": "114514@qq.com"
+}
+
+###
+POST http://localhost:5000/login
+content-type: application/json
+
+{
+    "username": "yhzx233",
+    "password": "1919810"
+}
+
+###
+
+GET http://localhost:5000/user
+
+###
+
+GET http://localhost:5000/logout
+
+###
+
+PUT http://localhost:5000/user
+Content-Type: application/json
+
+{
+    "username": "yhzx666",
+    "password": "1919810"
+}

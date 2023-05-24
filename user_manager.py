@@ -4,6 +4,7 @@ from model import Account, db, app
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+app.config["SECRET_KEY"] = 'ImageDB_secret_key'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,14 +57,13 @@ def login():
     login_user(account)
     return jsonify({"message": "logged in successfully"}), 200
 
+from flask_login import login_required, current_user
 
 @app.route("/logout")
+@login_required
 def logout():
     logout_user()
     return jsonify({"message": "logged out successfully"}), 200
-
-
-from flask_login import login_required, current_user
 
 
 @app.route("/user", methods=["GET"])
@@ -94,3 +94,6 @@ def update_user_info():
 
     db.session.commit()
     return jsonify({"message": "user updated successfully"}), 200
+
+if __name__ == "__main__":
+    app.run("localhost", 5000, debug=True)
