@@ -18,6 +18,55 @@ def unauthorized_handler():
 
 @bp.route("/register", methods=["POST"])
 def register():
+    """Register a new user.
+
+    This endpoint allows users to register by providing a unique username, a password, and an email address.
+    
+    ---
+    parameters:
+      - in: body
+        name: user
+        description: User registration details.
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: The desired username for the new user.
+            password:
+              type: string
+              description: The password for the new user.
+            email:
+              type: string
+              description: The email address for the new user.
+    responses:
+      201:
+        description: User created successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: A success message.
+                  example: user created successfully
+                user_id:
+                  type: integer
+                  description: The ID of the created user.
+                  example: 123
+      400:
+        description: Invalid request or username already exists.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: An error message.
+    """
     username = request.json.get("username")
     password = request.json.get("password")
     email = request.json.get("email")
@@ -44,6 +93,48 @@ def register():
 
 @bp.route("/login", methods=["POST"])
 def login():
+    """User login.
+
+    This endpoint allows users to log in by providing their username and password.
+    
+    ---
+    parameters:
+      - in: body
+        name: credentials
+        description: User login credentials.
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: The username of the user.
+            password:
+              type: string
+              description: The password of the user.
+    responses:
+      200:
+        description: User logged in successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: A success message.
+                  example: logged in successfully
+      400:
+        description: Invalid request or invalid username/password.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: An error message.
+    """
     username = request.json.get("username")
     password = request.json.get("password")
 
@@ -63,6 +154,24 @@ from flask_login import login_required, current_user
 @bp.route("/logout")
 @login_required
 def logout():
+    """User logout.
+
+    This endpoint allows logged-in users to log out.
+    
+    ---
+    responses:
+      200:
+        description: User logged out successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: A success message.
+                  example: logged out successfully
+    """
     logout_user()
     return jsonify({"message": "logged out successfully"}), 200
 
@@ -70,6 +179,30 @@ def logout():
 @bp.route("/user", methods=["GET"])
 @login_required
 def get_user_info():
+    """Get user information.
+
+    This endpoint allows logged-in users to retrieve their own user information.
+    
+    ---
+    responses:
+      200:
+        description: User information retrieved successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                email:
+                  type: string
+                  description: The email address of the user.
+                created_at:
+                  type: string
+                  format: date-time
+                  description: The creation timestamp of the user.
+    """
     return (
         jsonify(
             {
@@ -85,6 +218,48 @@ def get_user_info():
 @bp.route("/user", methods=["PUT"])
 @login_required
 def update_user_info():
+    """Update user information.
+
+    This endpoint allows logged-in users to update their own user information.
+    
+    ---
+    parameters:
+      - in: body
+        name: user
+        description: User information to update.
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: The updated username of the user.
+            email:
+              type: string
+              description: The updated email address of the user.
+    responses:
+      200:
+        description: User information updated successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: A success message.
+                  example: user updated successfully
+      400:
+        description: Invalid request or username/email already exists.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: An error message.
+    """
     username = request.json.get("username")
     email = request.json.get("email")
 
