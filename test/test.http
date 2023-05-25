@@ -1,4 +1,4 @@
-POST http://localhost:5000/register
+POST http://localhost:5000/api/register
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5000/login
+POST http://localhost:5000/api/login
 content-type: application/json
 
 {
@@ -18,18 +18,18 @@ content-type: application/json
 
 ###
 
-GET http://localhost:5000/user
+GET http://localhost:5000/api/user
 
 ###
 
-GET http://localhost:5000/logout
+GET http://localhost:5000/api/logout
 
 ###
 
-PUT http://localhost:5000/user
+PUT http://localhost:5000/api/user
 Content-Type: application/json
 
 {
-    "username": "yhzx666",
-    "password": "1919810"
+    "username": "yhzx6666",
+    "email": "2058777361@qq.com"
 }
