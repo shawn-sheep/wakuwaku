@@ -1,13 +1,4 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-app = Flask(__name__)
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://root:GaussdbPassword%40123@119.3.126.0:5432/postgres"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
-
+from wakuwaku.extensions import db
 
 from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.sql import text, func
@@ -21,7 +12,7 @@ class Account(UserMixin, db.Model):
     __tablename__ = "account"
 
     account_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     created_at = db.Column(
