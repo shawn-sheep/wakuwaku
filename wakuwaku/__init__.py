@@ -25,9 +25,11 @@ def configure_app(app : Flask):
     app.config["SECRET_KEY"] = 'ImageDB_secret_key'
 
     app.config['SWAGGER'] = {
-    'title': 'Wakuwaku API',
-    'doc_dir': './wakuwaku/docs/'
-}
+        'title': 'Wakuwaku API',
+        'doc_dir': './wakuwaku/docs/'
+    }
+
+    app.config['UPLOAD_FOLDER'] = './wakuwaku/static/upload/'
 
 def configure_blueprints(app : Flask):
     '''Configure Flask blueprints.'''

@@ -14,6 +14,7 @@ class Account(UserMixin, db.Model):
     account_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(255), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+    avatar_url = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     created_at = db.Column(
         db.DateTime, server_default=func.current_timestamp(), nullable=False

@@ -13,8 +13,19 @@ from flask_login import login_user, logout_user
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return jsonify({"message": "unauthorized"}), 401
+    return jsonify({"message": "unauthorized"}), 
 
+@login_manager.request_loader
+def load_user_from_request(request):
+    # 检查 Authorization Header Bearer
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        session_id = auth_header.split(" ")[1]
+        # 检查session_id是否存在
+        res = login_manager._load_user_from_remember_cookie(session_id)
+        print(res)
+        return res
+    return None
 
 @bp.route("/register", methods=["POST"])
 def register():
@@ -23,6 +34,8 @@ def register():
     This endpoint allows users to register by providing a unique username, a password, and an email address.
     
     ---
+    tags:
+        - users
     parameters:
       - in: body
         name: user
@@ -98,6 +111,8 @@ def login():
     This endpoint allows users to log in by providing their username and password.
     
     ---
+    tags:
+        - users
     parameters:
       - in: body
         name: credentials
@@ -159,6 +174,8 @@ def logout():
     This endpoint allows logged-in users to log out.
     
     ---
+    tags:
+        - users
     responses:
       200:
         description: User logged out successfully.
@@ -184,6 +201,8 @@ def get_user_info():
     This endpoint allows logged-in users to retrieve their own user information.
     
     ---
+    tags:
+        - users
     responses:
       200:
         description: User information retrieved successfully.
@@ -223,6 +242,8 @@ def update_user_info():
     This endpoint allows logged-in users to update their own user information.
     
     ---
+    tags:
+        - users
     parameters:
       - in: body
         name: user
