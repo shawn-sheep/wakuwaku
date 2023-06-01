@@ -13,7 +13,7 @@ from flask_login import login_user, logout_user
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return jsonify({"message": "unauthorized"}), 
+    return jsonify({"message": "unauthorized"}), 401
 
 @login_manager.request_loader
 def load_user_from_request(request):
