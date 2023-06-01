@@ -56,29 +56,25 @@ def register():
     responses:
       201:
         description: User created successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: A success message.
-                  example: user created successfully
-                user_id:
-                  type: integer
-                  description: The ID of the created user.
-                  example: 123
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: A success message.
+              example: user created successfully
+            user_id:
+              type: integer
+              description: The ID of the created user.
+              example: 123
       400:
         description: Invalid request or username already exists.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: An error message.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: An error message.
     """
     username = request.json.get("username")
     password = request.json.get("password")
@@ -130,25 +126,21 @@ def login():
     responses:
       200:
         description: User logged in successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: A success message.
-                  example: logged in successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: A success message.
+              example: logged in successfully
       400:
         description: Invalid request or invalid username/password.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: An error message.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: An error message.
     """
     username = request.json.get("username")
     password = request.json.get("password")
@@ -179,15 +171,13 @@ def logout():
     responses:
       200:
         description: User logged out successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: A success message.
-                  example: logged out successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: A success message.
+              example: logged out successfully
     """
     logout_user()
     return jsonify({"message": "logged out successfully"}), 200
@@ -206,21 +196,19 @@ def get_user_info():
     responses:
       200:
         description: User information retrieved successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  description: The username of the user.
-                email:
-                  type: string
-                  description: The email address of the user.
-                created_at:
-                  type: string
-                  format: date-time
-                  description: The creation timestamp of the user.
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: The username of the user.
+            email:
+              type: string
+              description: The email address of the user.
+            created_at:
+              type: string
+              format: date-time
+              description: The creation timestamp of the user.
     """
     return (
         jsonify(
@@ -261,25 +249,21 @@ def update_user_info():
     responses:
       200:
         description: User information updated successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: A success message.
-                  example: user updated successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: A success message.
+              example: user updated successfully
       400:
         description: Invalid request or username/email already exists.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: An error message.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: An error message.
     """
     username = request.json.get("username")
     email = request.json.get("email")

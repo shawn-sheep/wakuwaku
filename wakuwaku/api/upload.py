@@ -22,27 +22,26 @@ def upload():
     responses:
       200:
         description: The file was uploaded successfully.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: Success message.
-                url:
-                  type: string
-                  description: URL of the uploaded file.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message.
+              example: uploaded successfully
+            url:
+              type: string
+              description: URL of the uploaded file.
+              example: /api/images/12345678-1234-5678-1234-567812345678.jpg
       400:
         description: Failed to upload the file.
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  description: Error message.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message.
+              example: upload failed
     """
     file = request.files.get("file")
     if file:
