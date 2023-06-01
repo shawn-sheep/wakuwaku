@@ -86,7 +86,7 @@ def register():
     if Account.query.filter_by(username=username).first() is not None:
         return jsonify({"message": "username already exists"}), 400
 
-    account = Account(username=username, email=email)
+    account = Account(username=username, email=email, avatar_url="")
     account.set_password(password)
 
     db.session.add(account)
@@ -209,6 +209,9 @@ def get_user_info():
               type: string
               format: date-time
               description: The creation timestamp of the user.
+            avatar_url:
+              type: string
+              description: The avatar URL of the user.
     """
     return (
         jsonify(
@@ -216,6 +219,7 @@ def get_user_info():
                 "username": current_user.username,
                 "email": current_user.email,
                 "created_at": current_user.created_at,
+                "avatar_url": current_user.avatar_url,
             }
         ),
         200,
@@ -246,6 +250,9 @@ def update_user_info():
             email:
               type: string
               description: The updated email address of the user.
+            avatar_url:
+              type: string
+              description: The updated avatar URL of the user.
     responses:
       200:
         description: User information updated successfully.
@@ -264,9 +271,11 @@ def update_user_info():
             message:
               type: string
               description: An error message.
+              example: username already exists
     """
     username = request.json.get("username")
     email = request.json.get("email")
+    avatar_url = request.json.get("avatar_url")
 
     if username is not None:
         if Account.query.filter_by(username=username).first() is not None:
@@ -276,6 +285,8 @@ def update_user_info():
         if Account.query.filter_by(email=email).first() is not None:
             return jsonify({"message": "email already exists"}), 400
         current_user.email = email
+    if avatar_url is not None:
+        current_user.avatar_url = avatar_url
 
     db.session.commit()
     return jsonify({"message": "user updated successfully"}), 200
