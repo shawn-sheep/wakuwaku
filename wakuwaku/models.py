@@ -69,6 +69,16 @@ class Image(db.Model):
 
     post = relationship("Post", backref=db.backref("images", lazy=True))
 
+    def to_dict(self):
+        return {
+            "image_id": self.image_id,
+            "post_id": self.post_id,
+            "name": self.name,
+            "preview_url": self.preview_url,
+            "sample_url": self.sample_url,
+            "original_url": self.original_url,
+        }
+
 
 class Tag(db.Model):
     __tablename__ = "tag"
