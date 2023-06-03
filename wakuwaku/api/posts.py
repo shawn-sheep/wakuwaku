@@ -1,5 +1,5 @@
 from wakuwaku.api import bp
-from wakuwaku.models import Account, Post, Comment, Vote, Image
+from wakuwaku.models import Account, Post, Comment, Vote, Image, PostTag, Tag
 from wakuwaku.extensions import db, swagger
 
 from sqlalchemy.orm import joinedload
@@ -134,6 +134,11 @@ def get_posts():
           type: integer
           description: Number of posts per page.
           default: 10
+        - in: query
+          name: tags
+          type: string
+          description: Tags of the posts separated by space.
+          default: ""
     responses:
         200:
             description: Posts retrieved successfully.
@@ -141,6 +146,21 @@ def get_posts():
                 type: array
                 items:
                     $ref: '#/definitions/PostPreview'
+        201:
+            description: tags not found.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: tags not found
+                    unknown_tags:
+                        type: array
+                        items:
+                            type: string
+                        description: Unknown tags.
+                        example: ["abc"]
         400:
             description: Invalid parameters.
             schema:
@@ -154,23 +174,31 @@ def get_posts():
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
+        tags = request.args.get("tags", "")
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
 
-    # post join image
-    # posts = Post.query.order_by(Post.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False).items
-    # res = []
-    # for post in posts:
-    #     res.append(post.to_dict())
-    #     res[-1]["image_preview_url"] = post.images[0].preview_url
+    tag_query = db.session.query(Tag).filter(Tag.name.in_(tags.split()))
+    tags_info = tag_query.all()
 
-    # post join image
-    posts = Post.query.options(joinedload(Post.images)).order_by(Post.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    if len(tags_info) != len(tags.split()):
+        unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
+        return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
+
+
+    post_query = db.session.query(Post.post_id).order_by(Post.post_id.desc())
+    for tag in tags_info:
+        post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
+    post_query = post_query.limit(per_page).offset((page - 1) * per_page)
+
+    post_join_image = db.session.query(Post, Image.preview_url).join(Post.images).filter(Post.post_id.in_(post_query))
+
+    # print(post_join_image)
+
     res = []
-    for post in posts.items:
+    for post, preview_url in post_join_image:
         res.append(post.to_dict())
-        res[-1]["image_preview_url"] = post.images[0].preview_url
-
+        res[-1]["image_preview_url"] = preview_url
     return jsonify(res), 200
 
 @bp.route("/posts/<int:post_id>", methods=["GET"])
