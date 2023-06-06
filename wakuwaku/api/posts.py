@@ -139,6 +139,12 @@ def get_posts():
           type: string
           description: Tags of the posts separated by space.
           default: ""
+        - in: query
+          name: order
+          type: string
+          description: Order of the posts.
+          default: "new"
+          enum: ["new", "old", "score"] 
     responses:
         200:
             description: Posts retrieved successfully.
@@ -175,6 +181,7 @@ def get_posts():
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
         tags = request.args.get("tags", "")
+        order = request.args.get("order", "new")
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
 
@@ -185,20 +192,38 @@ def get_posts():
         unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
         return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
 
-
-    post_query = db.session.query(Post.post_id).order_by(Post.post_id.desc())
+    post_query = db.session.query(Post, Image.preview_url).outerjoin(Post.images)
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
+
+    order_dict = {
+        "new": Post.created_at.desc(),
+        "old": Post.created_at.asc(),
+        "score": Post.score.desc(),
+    }
+
+    post_query = post_query.order_by(order_dict[order])
+
     post_query = post_query.limit(per_page).offset((page - 1) * per_page)
 
-    post_join_image = db.session.query(Post, Image.preview_url).join(Post.images).filter(Post.post_id.in_(post_query))
+    # post_join_image = db.session.query(Post, Image.preview_url).join(Post.images).filter(Post.post_id.in_(post_query))
 
-    # print(post_join_image)
+    # post_join_image = post_join_image.order_by(order_dict[order])
 
-    res = []
-    for post, preview_url in post_join_image:
-        res.append(post.to_dict())
-        res[-1]["image_preview_url"] = preview_url
+    # print(post_query.statement)
+
+    posts = {}
+    for post, preview_url in post_query.all():
+        if post.post_id not in posts:
+            posts[post.post_id] = post.to_dict()
+        if preview_url is not None:
+            posts[post.post_id]["preview_url"] = preview_url
+        else:
+            posts[post.post_id]["preview_url"] = ""
+
+    res = [post for post in posts.values()]
+
+
     return jsonify(res), 200
 
 @bp.route("/posts/<int:post_id>", methods=["GET"])
@@ -232,12 +257,16 @@ def get_post(post_id):
                         description: Error message.
                         example: post not found
     """
-    post : Post = Post.query.get_or_404(post_id)
+    from sqlalchemy import select
+    post_images_query = select(Post, Image).join_from(Post, Image).where(Post.post_id == post_id)
 
     # images 添加到 images 字段
-    res = post.to_dict()
+    post_images = db.session.execute(post_images_query).all()
+    if len(post_images) == 0:
+        return jsonify({"message": "post not found"}), 404
+    res = post_images[0][0].to_dict()
     res["images"] = []
-    for image in post.images:
+    for post, image in post_images:
         res["images"].append(image.to_dict())
 
     return jsonify(res), 200

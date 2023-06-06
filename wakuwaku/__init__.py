@@ -21,6 +21,7 @@ def configure_app(app : Flask):
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://root:GaussdbPassword%40123@119.3.126.0:5432/postgres"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ECHO"] = True
 
     app.config["SECRET_KEY"] = 'ImageDB_secret_key'
 
