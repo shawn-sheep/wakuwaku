@@ -105,6 +105,16 @@ specs_dict = {
                     "description": "The original URL of the image.",
                     "example": "/api/images/12345678-1234-5678-1234-567812345678.jpg",
                 },
+                "width": {
+                    "type": "integer",
+                    "description": "The width of the image.",
+                    "example": 123,
+                },
+                "height": {
+                    "type": "integer",
+                    "description": "The height of the image.",
+                    "example": 123,
+                },
             }
         }
     }
@@ -192,7 +202,7 @@ def get_posts():
         unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
         return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
 
-    post_query = db.session.query(Post, Image.preview_url).outerjoin(Post.images)
+    post_query = db.session.query(Post, Image.preview_url, Image.width, Image.height).outerjoin(Post.images)
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
 
@@ -213,13 +223,10 @@ def get_posts():
     # print(post_query.statement)
 
     posts = {}
-    for post, preview_url in post_query.all():
+    for post, preview_url, width, height in post_query.all():
         if post.post_id not in posts:
             posts[post.post_id] = post.to_dict()
-        if preview_url is not None:
-            posts[post.post_id]["preview_url"] = preview_url
-        else:
-            posts[post.post_id]["preview_url"] = ""
+            posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height})
 
     res = [post for post in posts.values()]
 
@@ -270,3 +277,37 @@ def get_post(post_id):
         res["images"].append(image.to_dict())
 
     return jsonify(res), 200
+
+@bp.route("/posts", methods=["POST"])
+@login_required
+@swag_from(specs_dict)
+def create_post():
+    """Create a post.
+
+    This endpoint allows users to create a post.
+
+    ---
+    tags:
+        - posts
+    parameters:
+        - name: post
+          in: body
+          schema:
+            $ref: '#/definitions/Post'
+    responses:
+        201:
+            description: Post created successfully.
+            schema:
+                $ref: '#/definitions/PostDetail'
+        400:
+            description: Invalid parameters.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: invalid parameters
+    """
+    print(request.json)
+    return jsonify({"message": "todo"}), 200

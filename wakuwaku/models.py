@@ -66,6 +66,8 @@ class Image(db.Model):
     preview_url = db.Column(db.String(255), nullable=False)
     sample_url = db.Column(db.String(255), nullable=False)
     original_url = db.Column(db.String(255), nullable=False)
+    width = db.Column(db.Integer)
+    height = db.Column(db.Integer)
 
     post = relationship("Post", backref=db.backref("images", lazy=True))
 
@@ -77,6 +79,8 @@ class Image(db.Model):
             "preview_url": self.preview_url,
             "sample_url": self.sample_url,
             "original_url": self.original_url,
+            "width": self.width,
+            "height": self.height,
         }
 
 
