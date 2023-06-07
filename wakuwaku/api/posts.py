@@ -6,8 +6,8 @@ from sqlalchemy.orm import joinedload
 
 from flasgger import swag_from
 
-from flask import request, jsonify
-from flask_login import login_required
+from flask import request, jsonify, current_app
+from flask_login import login_required, current_user
 
 specs_dict = {
     "definitions": {
@@ -290,15 +290,41 @@ def create_post():
     tags:
         - posts
     parameters:
-        - name: post
-          in: body
-          schema:
-            $ref: '#/definitions/Post'
+        -   name: title
+            in: formData
+            type: string
+            description: The title of the post.
+        -   name: content
+            in: formData
+            type: string
+            description: The content of the post.
+        -   name: source
+            in: formData
+            type: string
+            required: true
+            description: The source of the post.
+        -   name: tags
+            in: formData
+            type: string
+            description: The tags of the post separated by space.
+        -   name: images
+            in: formData
+            type: file
+            description: The images of the post.
     responses:
         201:
             description: Post created successfully.
             schema:
-                $ref: '#/definitions/PostDetail'
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Success message.
+                        example: post created successfully
+                    post_id:
+                        type: integer
+                        description: ID of the post.
+                        example: 1
         400:
             description: Invalid parameters.
             schema:
@@ -308,6 +334,103 @@ def create_post():
                         type: string
                         description: Error message.
                         example: invalid parameters
+        422:
+            description: Invalid parameters.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: tags not found
+                    unknown_tags:
+                        type: array
+                        items:
+                            type: string
+                        description: Unknown tags.
+                        example: ["tag1", "tag2"]
     """
-    print(request.json)
-    return jsonify({"message": "todo"}), 200
+    try:
+        title = request.form.get("title", "")
+        content = request.form.get("content", "")
+        source = request.form["source"]
+        tags = request.form.get("tags", "").split()
+        images = request.files.getlist("images")
+    except KeyError:
+        return jsonify({"message": "invalid parameters"}), 400
+
+    from sqlalchemy import insert
+
+    insert_post = insert(Post).values(
+        account_id=current_user.account_id,
+        title=title,
+        content=content,
+        source=source,
+        score=0,
+    ).returning(Post.post_id)
+
+    # 添加 tags
+    insert_tags = []
+    if tags:
+        tag_query = db.session.query(Tag).filter(Tag.name.in_(tags))
+        tags_info = tag_query.all()
+
+        if len(tags_info) != len(tags):
+            unknown_tags = [tag for tag in tags if tag not in [tag.name for tag in tags_info]]
+            return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 422
+
+        insert_tags = [{"tag_id": tag.tag_id} for tag in tags_info]
+
+    # 添加 images
+    insert_images = []
+    from wakuwaku.utils import save_file
+    from PIL import Image as PILImage
+    for image in images:
+        # 把image转为PILImage
+        original_image = PILImage.open(image)
+        sample_image = original_image.copy()
+        sample_image.thumbnail((720, 720))
+        preview_image = original_image.copy()
+        preview_image.thumbnail((180, 180))
+
+        # 保存原图
+        original_url = save_file(original_image, "original", 100)
+        # 保存预览图
+        preview_url = save_file(preview_image, "preview")
+        # 保存缩略图
+        sample_url = save_file(sample_image, "sample")
+
+        # 添加到数据库
+        insert_images.append({
+            "name": image.filename.split(".")[0][:255],
+            "original_url": original_url,
+            "preview_url": preview_url,
+            "sample_url": sample_url,
+            "width": original_image.width,
+            "height": original_image.height,
+        })
+
+    post_id = db.session.execute(insert_post).fetchone()[0]
+
+    for tag in insert_tags:
+        db.session.add(PostTag(
+            post_id=post_id,
+            tag_id=tag["tag_id"],
+        ))
+
+    for image in insert_images:
+        db.session.add(Image(
+            post_id=post_id,
+            name=image["name"],
+            original_url=image["original_url"],
+            preview_url=image["preview_url"],
+            sample_url=image["sample_url"],
+            width=image["width"],
+            height=image["height"],
+        ))
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "post created successfully",
+        "post_id": post_id}), 201

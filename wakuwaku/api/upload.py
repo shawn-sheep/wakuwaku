@@ -55,8 +55,8 @@ def upload():
         }), 200
     else:
         return jsonify({"message": "upload failed"}), 400
-    
-@bp.route("/images/<filename>", methods=["GET"])
+
+@bp.route("/images/<path:filename>", methods=["GET"])
 def get_image(filename):
     """
     Get an uploaded image by filename.
