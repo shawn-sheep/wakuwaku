@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import jsonify, current_app
 from uuid import uuid4
 import os
 
@@ -25,3 +25,13 @@ def save_file(file : PILImage.Image, category : str, quality : int = 95):
     # 保存文件
     file.save(os.path.join(category_path, filename), quality=quality)
     return '/api/images/' + category + '/' + filename
+
+def json_response(data : dict, code : int) -> tuple:
+    """
+    返回json格式的响应。
+
+    :param data: 要返回的数据。
+    :param code: HTTP状态码。
+    :return: tuple, (响应数据, HTTP状态码)。
+    """
+    return jsonify({"code": code, "data": data}), 200
