@@ -52,25 +52,32 @@ def vote():
               example: Vote failed
     """
     post_id = request.form.get("post_id")
-    user_id = request.form.get("user_id")
+    account_id = request.form.get("account_id")
     vote_type = request.form.get("vote")
 
     post = Post.query.get(post_id)
-    user = Account.query.get(user_id)
+    user = Account.query.get(account_id)
     if not post or not user:
         return jsonify({"message": "Post or user not found"}), 404
 
-    vote = Vote.query.filter_by(user_id=user_id, post_id=post_id).first()
-    if vote:
-        return jsonify({"message": "You have already voted on this post"}), 400
+    vote = Vote.query.filter_by(account_id=account_id, post_id=post_id).first()
+    if(vote):
+        if(vote_type == 'cancel'):
+            db.session.delete(vote)
+            post.votes -= vote.value
+        else:
+            return jsonify({"message": "Vote already recorded"}), 400
+    else:
+        if(vote_type == 'up'):
+            vote = Vote(account_id=account_id, post_id=post_id, value=1)
+            post.votes += 1
+        elif(vote_type == 'down'):
+            vote = Vote(account_id=account_id, post_id=post_id, value=-1)
+            post.votes -= 1
+        else:
+            return jsonify({"message": "Invalid vote type"}), 400
 
-    vote = Vote(user_id=user_id, post_id=post_id, vote=vote_type)
-    db.session.add(vote)
-
-    if vote_type == "up":
-        post.votes += 1
-    elif vote_type == "down":
-        post.votes -= 1
+        db.session.add(vote)
 
     db.session.commit()
 
