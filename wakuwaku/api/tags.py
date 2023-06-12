@@ -27,9 +27,7 @@ def autocomplete():
                     tags:
                         type: array
                         items:
-                            type: string
-                        description: The tags.
-                        example: ["tag1", "tag2"]
+                            $ref: "#/definitions/Tag"
         400:
             description: Invalid parameters
             schema:
@@ -47,5 +45,5 @@ def autocomplete():
     
     # 按照tag.count排序，最多返回10个tag
     tags = Tag.query.filter(Tag.name.like(f"%{q}%")).order_by(Tag.count.desc()).limit(10).all()
-    tags = [tag.name for tag in tags]
+    tags = [tag.to_dict() for tag in tags]
     return jsonify({"tags": tags}), 200

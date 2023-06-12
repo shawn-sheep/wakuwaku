@@ -92,6 +92,14 @@ class Tag(db.Model):
     name = db.Column(db.String(255), nullable=False)
     count = db.Column(db.Integer, nullable=False)
 
+    def to_dict(self):
+        return {
+            "tag_id": self.tag_id,
+            "type": self.type,
+            "name": self.name,
+            "count": self.count,
+        }
+
 
 class PostTag(db.Model):
     __tablename__ = "post_tag"

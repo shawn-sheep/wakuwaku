@@ -69,7 +69,13 @@ specs_dict = {
                     "items": {
                         "$ref": "#/definitions/Image"
                     }
-                }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Tag"
+                    }
+                },
             }
         },
         "Image": {
@@ -113,6 +119,31 @@ specs_dict = {
                 "height": {
                     "type": "integer",
                     "description": "The height of the image.",
+                    "example": 123,
+                },
+            }
+        },
+        "Tag": {
+            "type": "object",
+            "properties": {
+                "tag_id": {
+                    "type": "integer",
+                    "description": "The tag ID.",
+                    "example": 123,
+                },
+                "type": {
+                    "type": "integer",
+                    "description": "The type of the tag.",
+                    "example": 0,
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the tag.",
+                    "example": "abc",
+                },
+                "count": {
+                    "type": "integer",
+                    "description": "The count of the tag.",
                     "example": 123,
                 },
             }
@@ -234,7 +265,6 @@ def get_posts():
     return jsonify(res), 200
 
 @bp.route("/posts/<int:post_id>", methods=["GET"])
-@swag_from(specs_dict)
 def get_post(post_id):
     """Get a post.
 
@@ -264,23 +294,34 @@ def get_post(post_id):
                         description: Error message.
                         example: post not found
     """
-    from sqlalchemy import select
-    post_images_query = select(Post, Image).join_from(Post, Image).where(Post.post_id == post_id)
+    # from sqlalchemy import select
+    # post_images_query = select(Post, Image).join_from(Post, Image).where(Post.post_id == post_id)
 
-    # images 添加到 images 字段
-    post_images = db.session.execute(post_images_query).all()
-    if len(post_images) == 0:
+    # # images 添加到 images 字段
+    # post_images = db.session.execute(post_images_query).all()
+    # if len(post_images) == 0:
+    #     return jsonify({"message": "post not found"}), 404
+    # res = post_images[0][0].to_dict()
+    # res["images"] = []
+    # for post, image in post_images:
+    #     res["images"].append(image.to_dict())
+
+    post = Post.query.get(post_id)
+    if post is None:
         return jsonify({"message": "post not found"}), 404
-    res = post_images[0][0].to_dict()
+    res = post.to_dict()
     res["images"] = []
-    for post, image in post_images:
+    for image in post.images:
         res["images"].append(image.to_dict())
 
+    tags_query = db.session.query(Tag).join(PostTag).filter(PostTag.post_id == post_id)
+
+    res["tags"] = [tag.to_dict() for tag in tags_query.all()]
+        
     return jsonify(res), 200
 
 @bp.route("/posts", methods=["POST"])
 @login_required
-@swag_from(specs_dict)
 def create_post():
     """Create a post.
 
