@@ -53,7 +53,7 @@ def vote():
               example: Vote failed
     """
     post_id = request.form.get("post_id")
-    account_id = current_user.id
+    account_id = current_user.account_id
     vote_type = request.form.get("vote")
 
     post = Post.query.get(post_id)
@@ -66,6 +66,12 @@ def vote():
         if(vote_type == 'cancel'):
             db.session.delete(vote)
             post.score -= vote.value
+        if(vote_type == 'up' and vote.value == -1):
+            vote.value = 1
+            post.score += 2
+        elif(vote_type == 'down' and vote.value == 1):
+            vote.value = -1
+            post.score -= 2
         else:
             return jsonify({"message": "Vote already recorded"}), 400
     else:
