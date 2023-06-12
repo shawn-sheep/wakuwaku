@@ -1,2 +1,4 @@
 __pycache__
 wakuwaku/static/upload/*
+.vscode/*
+```
