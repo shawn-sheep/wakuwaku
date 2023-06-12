@@ -64,16 +64,16 @@ def vote():
     if(vote):
         if(vote_type == 'cancel'):
             db.session.delete(vote)
-            post.votes -= vote.value
+            post.score -= vote.value
         else:
             return jsonify({"message": "Vote already recorded"}), 400
     else:
         if(vote_type == 'up'):
             vote = Vote(account_id=account_id, post_id=post_id, value=1)
-            post.votes += 1
+            post.score += 1
         elif(vote_type == 'down'):
             vote = Vote(account_id=account_id, post_id=post_id, value=-1)
-            post.votes -= 1
+            post.score -= 1
         else:
             return jsonify({"message": "Invalid vote type"}), 400
 
