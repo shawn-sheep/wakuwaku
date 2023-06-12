@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from wakuwaku.api import bp
 from wakuwaku.models import Post, db, Vote, Account
+from flask_login import login_required, current_user
 
 @bp.route("/vote", methods=["POST"])
 def vote():
@@ -52,7 +53,7 @@ def vote():
               example: Vote failed
     """
     post_id = request.form.get("post_id")
-    account_id = request.form.get("account_id")
+    account_id = current_user.id
     vote_type = request.form.get("vote")
 
     post = Post.query.get(post_id)
