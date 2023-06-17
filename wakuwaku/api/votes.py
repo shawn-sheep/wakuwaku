@@ -4,6 +4,7 @@ from wakuwaku.models import Post, db, Vote, Account
 from flask_login import login_required, current_user
 
 @bp.route("/vote", methods=["POST"])
+@login_required
 def vote():
     """
     Vote on a post.
@@ -17,15 +18,10 @@ def vote():
         type: integer
         required: true
         description: The ID of the post to vote on.
-      - name: user_id
-        in: formData
-        type: integer
-        required: true
-        description: The ID of the user casting the vote.
       - name: vote
         in: formData
         type: string
-        enum: ['up', 'down']
+        enum: ['up', 'down', 'cancel']
         required: true
         description: The type of vote ('up' or 'down').
     responses:
@@ -38,9 +34,9 @@ def vote():
               type: string
               description: Success message.
               example: Vote recorded
-            votes:
+            score:
               type: integer
-              description: The current vote count for the post.
+              description: The current score for the post.
               example: 15
       400:
         description: Failed to record the vote.
@@ -53,36 +49,47 @@ def vote():
               example: Vote failed
     """
     post_id = request.form.get("post_id")
-    account_id = current_user.id
     vote_type = request.form.get("vote")
+    account_id = current_user.account_id
 
     post = Post.query.get(post_id)
-    user = Account.query.get(account_id)
-    if not post or not user:
-        return jsonify({"message": "Post or user not found"}), 404
-
+    if not post:
+        return jsonify({"message": "Post not found"}), 404
+    
+    if vote_type not in ['up', 'down', 'cancel']:
+        return jsonify({"message": "Invalid vote type"}), 400
+    
     vote = Vote.query.filter_by(account_id=account_id, post_id=post_id).first()
-    if(vote):
-        if(vote_type == 'cancel'):
+    
+    if vote_type == 'cancel':
+        if not vote:
+            return jsonify({"message": "Vote not found"}), 404
+        else:
             db.session.delete(vote)
             post.score -= vote.value
-        else:
-            return jsonify({"message": "Vote already recorded"}), 400
-    else:
-        if(vote_type == 'up'):
-            vote = Vote(account_id=account_id, post_id=post_id, value=1)
-            post.score += 1
-        elif(vote_type == 'down'):
-            vote = Vote(account_id=account_id, post_id=post_id, value=-1)
-            post.score -= 1
-        else:
-            return jsonify({"message": "Invalid vote type"}), 400
+            db.session.commit()
+            return jsonify({
+                "message": "Vote cancelled",
+                "score": post.score
+            }), 200
+        
+    pre_value = vote.value if vote else 0
+    new_value = 1 if vote_type == 'up' else -1
 
+    if pre_value == new_value:
+        return jsonify({"message": "Vote already recorded"}), 400
+    
+    if vote:
+        vote.value = new_value
+    else:
+        vote = Vote(account_id=account_id, post_id=post_id, value=new_value)
         db.session.add(vote)
+
+    post.score += new_value - pre_value
 
     db.session.commit()
 
     return jsonify({
         "message": "Vote recorded",
-        "votes": post.votes
+        "score": post.score
     }), 200

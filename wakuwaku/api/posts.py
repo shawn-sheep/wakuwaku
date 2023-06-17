@@ -2,8 +2,6 @@ from wakuwaku.api import bp
 from wakuwaku.models import Account, Post, Comment, Vote, Image, PostTag, Tag
 from wakuwaku.extensions import db, swagger
 
-from sqlalchemy.orm import joinedload
-
 from flasgger import swag_from
 
 from flask import request, jsonify, current_app
@@ -217,12 +215,27 @@ def get_posts():
                         type: string
                         description: Error message.
                         example: invalid parameters
+        504:
+            description: Timeout.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: query timeout (1000ms)
     """
     try:
         page = int(request.args.get("page", 1))
+        if page < 1:
+            raise ValueError
         per_page = int(request.args.get("per_page", 10))
+        if per_page < 1:
+            raise ValueError
         tags = request.args.get("tags", "")
         order = request.args.get("order", "new")
+        if order not in ["new", "old", "score"]:
+            raise ValueError
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
 
@@ -244,20 +257,24 @@ def get_posts():
     }
 
     post_query = post_query.order_by(order_dict[order])
-
     post_query = post_query.limit(per_page).offset((page - 1) * per_page)
+    # 设置超时
+    db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
-    # post_join_image = db.session.query(Post, Image.preview_url).join(Post.images).filter(Post.post_id.in_(post_query))
-
-    # post_join_image = post_join_image.order_by(order_dict[order])
-
-    # print(post_query.statement)
+    from sqlalchemy.exc import OperationalError
 
     posts = {}
-    for post, preview_url, width, height in post_query.all():
-        if post.post_id not in posts:
-            posts[post.post_id] = post.to_dict()
-            posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height})
+    try:
+        for post, preview_url, width, height in post_query.all():
+            if post.post_id not in posts:
+                posts[post.post_id] = post.to_dict()
+                posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height})
+    except OperationalError as e:
+        if "canceling statement due to statement timeout" in str(e):
+            return jsonify({"message": "query timeout (1000ms)"}), 504
+        else:
+            raise e
+
 
     res = [post for post in posts.values()]
 
