@@ -1,0 +1,103 @@
+<link rel="stylesheet" href="assets/font/Inter Web/inter.css">
+<template>
+  <div>
+    <router-view/>
+    <keep-alive>
+      <waku-image-detail></waku-image-detail>
+    </keep-alive>
+  </div>
+</template>
+
+<style>
+#app {
+  /*font-family: 'Inter',Avenir, Helvetica, Arial, sans-serif;*/
+  font-family: 'Inter';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  font-size: 14px;
+  --wakuwaku-background-color: #FFE4E1;
+  --wakuwaku-main-background-color: white;
+  --wakuwaku-header-background-color: #FFE4E1;
+  --wakuwaku-header-font-color: #E8948B;
+  --wakuwaku-color: #FFF0F5;
+  --wakuwaku-color-light: #FFF8FB;
+  --wakuwaku-color-dark: #FFE1ED;
+  --wakuwaku-font-color: #B39EA5;
+  --wakuwaku-font-color-dark: #665A5E;
+  --wakuwaku-color-spring-grean: #00CD66;
+  --wakuwaku-large-radius: 8px;
+  --wakuwaku-medium-radius: 5px;
+  --wakuwaku-searchbar-background-color: #FFFFFF;
+  --wakuwaku-scrollbar-color: #FFE4E1;
+  --wakuwaku-scrollbar-thumb-color: #eab3ad;
+}
+
+nav {
+  padding: 30px;
+}
+
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+body {
+  margin: 0;
+  user-select: none;
+}
+
+.fade-enter-active {
+  animation: fade 0.2s;
+}
+
+.fade-leave-active {
+  animation: fade 0.2s reverse;
+}
+
+.shrink-enter-active {
+  animation: expand 0.2s;
+}
+
+.shrink-leave-active {
+  animation: shrink 0.2s;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shrink {
+  from {
+    scale: 1.2;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes expand {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.2;
+  }
+}
+</style>
+<script>
+import WakuImageDetail from "@/components/WakuImageDetail";
+export default {
+  components: {WakuImageDetail}
+}
+</script>
