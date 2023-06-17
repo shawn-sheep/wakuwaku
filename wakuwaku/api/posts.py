@@ -268,10 +268,11 @@ def get_posts():
         from datetime import datetime, timedelta
         post_query = post_query.filter(Post.created_at > datetime.now() - timedelta(days=30))
 
-    post_query = post_query.order_by(order_dict[order])
-    post_query = post_query.limit(per_page).offset((page - 1) * per_page)
     if before_id > 0:
         post_query = post_query.filter(Post.post_id < before_id)
+
+    post_query = post_query.order_by(order_dict[order])
+    post_query = post_query.limit(per_page).offset((page - 1) * per_page)
     # 设置超时
     db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
