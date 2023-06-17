@@ -169,6 +169,11 @@ def get_posts():
           description: Page number.
           default: 1
         - in: query
+          name: before_id
+          type: integer
+          description: The ID of the post before which the posts are retrieved. (set to 0 to ignore)
+          default: 0
+        - in: query
           name: per_page
           type: integer
           description: Number of posts per page.
@@ -229,6 +234,7 @@ def get_posts():
         page = int(request.args.get("page", 1))
         if page < 1:
             raise ValueError
+        before_id = int(request.args.get("before_id", 0))
         per_page = int(request.args.get("per_page", 10))
         if per_page < 1:
             raise ValueError
@@ -264,6 +270,8 @@ def get_posts():
 
     post_query = post_query.order_by(order_dict[order])
     post_query = post_query.limit(per_page).offset((page - 1) * per_page)
+    if before_id > 0:
+        post_query = post_query.filter(Post.post_id < before_id)
     # 设置超时
     db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
