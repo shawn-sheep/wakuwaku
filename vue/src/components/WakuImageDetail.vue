@@ -8,12 +8,22 @@
         }"
     >
       <img
+          v-if="isImage"
           :src="store.state.displayImage.src"
           :style="{
             width: info.fitType === 'width' ? '100%' : '',
             height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''
           }"
       >
+      <video
+          v-if="isVideo"
+          :src="store.state.displayImage.src"
+          :style="{
+            width: info.fitType === 'width' ? '100%' : '',
+            height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''
+          }"
+          controls
+      ></video>
       <div class="description-div">
         <div style="text-align: left;font-size: 18px;font-weight: 600;">
           <waku-link style="height: 30px;line-height: 30px">{{ store.state.displayImage.description }}</waku-link>
@@ -21,7 +31,7 @@
             <waku-tag
                 v-for="item in store.state.displayImage.tags"
                 v-bind:key="item"
-                :name="item"
+                :name="item.name"
             ></waku-tag>
           </div>
         </div>
@@ -44,7 +54,7 @@
 
 <script setup>
 import store from "@/store";
-import {reactive, ref, watch} from "vue";
+import {reactive, ref, watch, computed} from "vue";
 import WakuTag from "@/components/WakuTag";
 import WakuLink from "@/components/WakuLink";
 import WakuButton from "@/components/WakuButton";
@@ -53,6 +63,14 @@ const contentRef = ref(null)
 
 const info = reactive({
   fitType : 'width'
+})
+
+const isImage = computed(() => {
+  return store.state.displayImage.src.match(/\.(jpg|jpeg|png|gif)$/i)
+})
+
+const isVideo = computed(() => {
+  return store.state.displayImage.src.match(/\.(mp4|webm|ogg)$/i)
 })
 
 const handleClick = () => {

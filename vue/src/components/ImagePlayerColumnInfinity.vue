@@ -31,10 +31,13 @@ import WakuImage from "@/components/WakuImage.vue";
 
 const props = withDefaults(defineProps<{
   columnMinWidth: number,
-  getImageList: (info : any) => {newInfo : any, newImageList : image[]}
+  // getImageList: (info : any) => {newInfo : any, newImageList : image[]}
+  getImageList: (info : any) => Promise<{newInfo : any, newImageList : image[]}>
 }>(), {
   columnMinWidth: 300,
-  getImageList: (i : any) => { return {newInfo : i, newImageList : []} }
+  getImageList: async (info : any) => {
+    return {newInfo: info, newImageList: []}
+  }
 })
 
 const info = reactive<{
@@ -50,7 +53,7 @@ const info = reactive<{
   imageList: [],
   imageListColumn: [[],[],[],[],[],[]],
   updating: false,
-  currentI: {}
+  currentI: {before_id: 0, per_page: 1}
 })
 
 const containerRef = ref<Element>()
@@ -92,6 +95,7 @@ watch(
       for (let i in info.imageList) {
         await insert(info.imageList[i])
       }
+      info.currentI.per_page = info.columnCount - 1
       info.updating = false
     },
     {}
@@ -121,7 +125,7 @@ const insert = async (img : image) => {
 }
 
 const more = async () => {
-  const {newInfo, newImageList} = props.getImageList(info.currentI)
+  const {newInfo, newImageList} = await props.getImageList(info.currentI)
   for (let item in newImageList) {
     await insert(newImageList[item])
   }

@@ -30,9 +30,9 @@ export const sleep = (time : number) => {
     })
 }
 
-export const showImage = (img : image) => {
+export const showImage = async (pre_img : image) => {
+    store.state.displayImage = await getImageByID(pre_img.id)
     store.state.isDisplayImage = true
-    store.state.displayImage = img
 }
 
 export const login = async (form: { account: string, password: string }) => {
@@ -71,10 +71,48 @@ export const register = async (form: { email: string, account: string, password:
 }
 
 export const getImageByID = async (id : string) => {
-    for (const i in store.state.recommend) {
-        if (store.state.recommend[i].id === id) {
-            return store.state.recommend[i]
+    // for (const i in store.state.recommend) {
+    //     if (store.state.recommend[i].id === id) {
+    //         return store.state.recommend[i]
+    //     }
+    // }
+    
+    const img = new image()
+    await API.get('/posts/' + id).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            const res_img = res.data.images[0]
+            img.id = res_img.id
+            img.src = res_img.sample_url
+            img.description = res.data.title
+            img.tags = res.data.tags
+            img.width = res_img.width
+            img.height = res_img.height
         }
-    }
-    return new image()
+    }).catch((res) => {
+        console.log("get image error")
+    })
+    return img
+}
+
+export const getImages = async (params : any) => {
+    const imgs : image[] = []
+    await API.get('/posts', { params }).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            for (const i in res.data) {
+                const res_data = res.data[i]
+                const img = new image()
+                img.id = res_data.post_id
+                img.src = res_data.preview_url
+                img.description = res_data.title
+                img.width = res_data.width
+                img.height = res_data.height
+                imgs.push(img)
+            }
+        }
+    }).catch((res) => {
+        console.log("get image error")
+    })
+    return imgs
 }
