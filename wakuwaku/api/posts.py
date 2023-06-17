@@ -183,7 +183,7 @@ def get_posts():
           type: string
           description: Order of the posts.
           default: "new"
-          enum: ["new", "old", "score"] 
+          enum: ["new", "old", "score", "rank"]
     responses:
         200:
             description: Posts retrieved successfully.
@@ -234,7 +234,7 @@ def get_posts():
             raise ValueError
         tags = request.args.get("tags", "")
         order = request.args.get("order", "new")
-        if order not in ["new", "old", "score"]:
+        if order not in ["new", "old", "score", "rank"]:
             raise ValueError
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
@@ -254,7 +254,13 @@ def get_posts():
         "new": Post.created_at.desc(),
         "old": Post.created_at.asc(),
         "score": Post.score.desc(),
+        "rank": Post.score.desc(),
     }
+
+    if order == "rank":
+        # 最近一周的热度
+        from datetime import datetime, timedelta
+        post_query = post_query.filter(Post.created_at > datetime.now() - timedelta(days=30))
 
     post_query = post_query.order_by(order_dict[order])
     post_query = post_query.limit(per_page).offset((page - 1) * per_page)
@@ -311,18 +317,6 @@ def get_post(post_id):
                         description: Error message.
                         example: post not found
     """
-    # from sqlalchemy import select
-    # post_images_query = select(Post, Image).join_from(Post, Image).where(Post.post_id == post_id)
-
-    # # images 添加到 images 字段
-    # post_images = db.session.execute(post_images_query).all()
-    # if len(post_images) == 0:
-    #     return jsonify({"message": "post not found"}), 404
-    # res = post_images[0][0].to_dict()
-    # res["images"] = []
-    # for post, image in post_images:
-    #     res["images"].append(image.to_dict())
-
     post = Post.query.get(post_id)
     if post is None:
         return jsonify({"message": "post not found"}), 404
