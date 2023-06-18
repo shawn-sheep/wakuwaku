@@ -125,6 +125,15 @@ class Comment(db.Model):
     account = relationship("Account", backref=db.backref("comments", lazy=True))
     post = relationship("Post", backref=db.backref("comments", lazy=True))
 
+    def to_dict(self):
+        return {
+            "comment_id": self.comment_id,
+            "post_id": self.post_id,
+            "account_id": self.account_id,
+            "content": self.content,
+            "created_at": self.created_at,
+        }
+
 
 class Vote(db.Model):
     __tablename__ = "vote"

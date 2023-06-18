@@ -1,10 +1,10 @@
 from wakuwaku.api import bp
 from wakuwaku.models import Account, Post, Comment, Vote, Image, PostTag, Tag
-from wakuwaku.extensions import db, swagger
+from wakuwaku.extensions import db
 
 from flasgger import swag_from
 
-from flask import request, jsonify, current_app
+from flask import request, jsonify
 from flask_login import login_required, current_user
 
 specs_dict = {
@@ -45,7 +45,7 @@ specs_dict = {
                 "created_at": {
                     "type": "string",
                     "description": "The creation time of the post.",
-                    "example": "2020-01-01 00:00:00",
+                    "example": "Wed, 01 Jan 2020 00:00:00 GMT",
                 }
             }
         },

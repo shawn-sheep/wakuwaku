@@ -82,7 +82,7 @@ export const getImageByID = async (id : string) => {
         console.log(res)
         if (res.status === 200) {
             const res_img = res.data.images[0]
-            img.id = res_img.id
+            img.id = id
             img.src = res_img.sample_url
             img.description = res.data.title
             img.tags = res.data.tags
