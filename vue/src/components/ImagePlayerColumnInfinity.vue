@@ -109,7 +109,6 @@ const init = () => {
 }
 
 const insert = async (img : image) => {
-  info.imageList.push(img)
   let minHeight = 999999
   let c
   for (let column in columnsRef.value) {
@@ -127,6 +126,7 @@ const insert = async (img : image) => {
 const more = async () => {
   const {newInfo, newImageList} = await props.getImageList(info.currentI)
   for (let item in newImageList) {
+    info.imageList.push(newImageList[item])
     await insert(newImageList[item])
   }
   info.currentI = newInfo
