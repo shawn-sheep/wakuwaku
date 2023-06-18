@@ -298,6 +298,9 @@ def get_posts():
         for post, preview_url, width, height in post_query.all():
             if post.post_id not in posts:
                 posts[post.post_id] = post.to_dict()
+                # 若url以mp4, webm, ogg结尾，降级为preview
+                if preview_url.split(".")[-1] in ["mp4", "webm", "ogg"]:
+                    preview_url = post.images[0].preview_url
                 posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height})
     except OperationalError as e:
         if "canceling statement due to statement timeout" in str(e):
