@@ -189,6 +189,12 @@ def get_posts():
           description: Order of the posts.
           default: "new"
           enum: ["new", "old", "score", "rank"]
+        - in: query
+          name: quality
+          type: string
+          description: Quality of the images.
+          default: "preview"
+          enum: ["preview", "sample", "original"]
     responses:
         200:
             description: Posts retrieved successfully.
@@ -242,6 +248,9 @@ def get_posts():
         order = request.args.get("order", "new")
         if order not in ["new", "old", "score", "rank"]:
             raise ValueError
+        quality = request.args.get("quality", "preview")
+        if quality not in ["preview", "sample", "original"]:
+            raise ValueError
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
 
@@ -251,8 +260,14 @@ def get_posts():
     if len(tags_info) != len(tags.split()):
         unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
         return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
+    
+    url_dict = {
+        "preview": Image.preview_url,
+        "sample": Image.sample_url,
+        "original": Image.original_url,
+    }
 
-    post_query = db.session.query(Post, Image.preview_url, Image.width, Image.height).outerjoin(Post.images)
+    post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height).outerjoin(Post.images)
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
 
