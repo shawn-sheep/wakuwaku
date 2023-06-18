@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, withDefaults, defineProps, onMounted, ref, watch, onUnmounted} from "vue";
+import {reactive, withDefaults, defineProps, onMounted, ref, onUnmounted} from "vue";
 import {image, sleep} from "@/assets/js/api";
 import WakuImage from "@/components/WakuImage.vue";
 
@@ -85,26 +85,26 @@ onUnmounted(() => {
   clearInterval(intervalHook)
 })
 
-watch(
-    () => info.columnCount,
-    async (val, preVal) => {
-      while (info.updating);
-      info.updating = true
-      for (let i = 0; i < 6; ++i)
-        info.imageListColumn[i].length = 0
-      for (let i in info.imageList) {
-        await insert(info.imageList[i])
-      }
-      info.currentI.per_page = info.columnCount - 1
-      info.updating = false
-    },
-    {}
-)
+const resize = async () => {
+  if(info.updating) return;
+  info.updating = true
+  for (let i = 0; i < 6; ++i)
+    info.imageListColumn[i].length = 0
+  for (let i in info.imageList) {
+    await insert(info.imageList[i])
+  }
+  info.currentI.per_page = info.columnCount - 1
+  info.updating = false
+}
 
 const init = () => {
-  info.columnCount = Math.floor(containerRef.value?.clientWidth / props.columnMinWidth);
-  if (info.columnCount < 1) info.columnCount = 1
-  if (info.columnCount > 6) info.columnCount = 6
+  let temp = Math.floor(containerRef.value?.clientWidth / props.columnMinWidth);
+  if (temp < 1) temp = 1
+  if (temp > 6) temp = 6
+  if(temp != info.columnCount) {
+    info.columnCount = temp
+    resize()
+  }
   info.columnWidth = containerRef.value?.clientWidth / info.columnCount
 }
 
