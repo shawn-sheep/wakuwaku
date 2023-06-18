@@ -35,7 +35,7 @@
             <waku-tag
                 v-for="item in store.state.displayImage.tags"
                 v-bind:key="item"
-                :name="item.name"
+                :tag="item"
             ></waku-tag>
           </div>
         </div>

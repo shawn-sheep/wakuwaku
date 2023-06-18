@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import {tag} from "@/assets/js/api";
 
 export default createStore({
   state: {
@@ -62,7 +63,7 @@ export default createStore({
       id: '',
       src: '',
       description: '',
-      tags: [''],
+      tags: [new tag()],
       width: 900,
       height: 588
     }

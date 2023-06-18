@@ -21,7 +21,7 @@
         </div>
         <div class="description-div">{{ info.img.description !== '' ? info.img.description : '无题' }}</div>
         <div class="tag-div">
-          <waku-tag v-for="tag in info.img.tags" :key="tag" :name="tag.name"></waku-tag>
+          <waku-tag v-for="tag in info.img.tags" :key="tag" :tag="tag"></waku-tag>
         </div>
         <div class="rect-div">{{ info.img.width + 'x' + info.img.height }}</div>
         <div style="margin: 20px 0; height: 2px;background-color: #AAAAAA"></div>

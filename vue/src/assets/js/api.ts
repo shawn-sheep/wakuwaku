@@ -2,11 +2,24 @@ import router from "@/router";
 import store from "@/store";
 import API from "@/plugins/axios"
 
+export class tag {
+    id : string;
+    name : string;
+    count : number;
+    type: string;
+    constructor() {
+        this.id = ''
+        this.name = ''
+        this.count = 0
+        this.type = ''
+    }
+}
+
 export class image {
     id : string;
     src : string;
     description : string;
-    tags: string[];
+    tags: tag[];
     width: number;
     height: number;
     constructor() {
