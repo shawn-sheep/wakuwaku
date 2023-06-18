@@ -41,8 +41,10 @@ const isLoaded = ref<boolean>(false)
 watch(
     () => props.img,
     (val, oldVal) => {
-      isLoaded.value = false
-      img.value = val
+      if(val.src != oldVal?.src) {
+        isLoaded.value = false
+        img.value = val
+      }
     },
     {
       immediate : true

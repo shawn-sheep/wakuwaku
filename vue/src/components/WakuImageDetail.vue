@@ -30,7 +30,7 @@
 <!--      ></video>-->
       <div class="description-div">
         <div style="text-align: left;font-size: 18px;font-weight: 600;">
-          <waku-link style="height: 30px;line-height: 30px">{{ store.state.displayImage.description }}</waku-link>
+          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayImage.id">{{ store.state.displayImage.description }}</waku-link>
           <div class="tags-div">
             <waku-tag
                 v-for="item in store.state.displayImage.tags"
@@ -72,14 +72,6 @@ const info = reactive({
   postWidth : 0
 })
 
-const isImage = computed(() => {
-  return store.state.displayImage.src.match(/\.(jpg|jpeg|png|gif)$/i)
-})
-
-const isVideo = computed(() => {
-  return store.state.displayImage.src.match(/\.(mp4|webm|ogg)$/i)
-})
-
 const handleClick = () => {
   store.state.isDisplayImage = false
 }
@@ -87,6 +79,7 @@ const handleClick = () => {
 watch(
     () => store.state.displayImage,
     (val, preVal) => {
+        console.log(store.state.displayImage)
         const whr1 = (window.innerWidth * 0.75) / (window.innerHeight * 0.75 - 90);
         const whr2 = val.width / val.height
         console.log(window.innerWidth)
