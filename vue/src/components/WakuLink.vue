@@ -1,5 +1,5 @@
 <template>
-  <div class="waku-link" @click="goto(route)">
+  <div class="waku-link" @click="goto(route, true)">
     <slot name="default"></slot>
   </div>
 </template>

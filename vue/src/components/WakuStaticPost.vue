@@ -1,7 +1,7 @@
 <template>
-  <div ref="containerRef" class="static-post-div" :style="{width: props.width === undefined ? '100%': props.width + 'px', height: containerHeight + 'px'}">
+  <div ref="containerRef" class="static-post-div" :style="{width: props.width === undefined ? '100%': props.width + 'px'}">
     <transition name="fade" appear>
-      <div style="width: 100%;height: 100%;position: absolute;background-color: #FFFFFF" v-if="(!isLoaded) && isImage">
+      <div style="width: 100%;position: absolute;background-color: #FFFFFF" v-if="(!isLoaded) && isImage" :style="{ height: containerHeight + 'px'}">
         <div style="position: absolute;top:50%;left: 50%;transform: translate(-50%, -50%)">
           <div class="spinner-5"></div>
         </div>
@@ -54,6 +54,7 @@ watch(
 let intervalHook : number
 
 onMounted(() => {
+  calcContainerHeight()
   intervalHook = setInterval(calcContainerHeight, 300)
 })
 
@@ -62,6 +63,7 @@ onUnmounted(() => {
 })
 
 const calcContainerHeight = () => {
+  if (isLoaded.value) return
   if (props.height != undefined) {
     containerHeight.value = props.height;
     return;
@@ -70,7 +72,7 @@ const calcContainerHeight = () => {
   if (props.width != undefined) calcWidth = props.width
   else if (containerRef.value != undefined) calcWidth = containerRef.value?.clientWidth
   containerHeight.value = calcWidth / props.img.width * props.img.height
-  console.log(containerHeight.value)
+  // console.log(containerHeight.value)
 }
 
 const isImage = computed(() => {
@@ -95,9 +97,9 @@ const onLoaded = () => {
   width: 100%;
   position: relative;
   margin: auto;
+  background-color: rgba(0, 0, 0, 0.02);
 }
 img,video {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
 }
 </style>

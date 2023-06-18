@@ -2,11 +2,24 @@ import router from "@/router";
 import store from "@/store";
 import API from "@/plugins/axios"
 
+export class tag {
+    id : string;
+    name : string;
+    count : number;
+    type: string;
+    constructor() {
+        this.id = ''
+        this.name = ''
+        this.count = 0
+        this.type = ''
+    }
+}
+
 export class image {
     id : string;
     src : string;
     description : string;
-    tags: string[];
+    tags: tag[];
     width: number;
     height: number;
     constructor() {
@@ -19,8 +32,15 @@ export class image {
     }
 }
 
-export const goto = (url : string) => {
-    if (url != null) router.push(url)
+export const goto = (url : string, newTab=false) => {
+    if(newTab) {
+        const href = router.resolve({
+            path: url
+        })
+        window.open(href.href, '_blank')
+    } else {
+        if (url != null) router.push(url)
+    }
 }
 
 export const sleep = (time : number) => {
@@ -76,13 +96,13 @@ export const getImageByID = async (id : string) => {
     //         return store.state.recommend[i]
     //     }
     // }
-    
+
     const img = new image()
     await API.get('/posts/' + id).then((res) => {
         console.log(res)
         if (res.status === 200) {
             const res_img = res.data.images[0]
-            img.id = id
+            img.id = res.data.post_id
             img.src = res_img.sample_url
             img.description = res.data.title
             img.tags = res.data.tags

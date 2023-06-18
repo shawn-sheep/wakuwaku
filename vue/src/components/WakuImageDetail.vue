@@ -30,12 +30,12 @@
 <!--      ></video>-->
       <div class="description-div">
         <div style="text-align: left;font-size: 18px;font-weight: 600;">
-          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayImage.id">{{ store.state.displayImage.description }}</waku-link>
+          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayImage.id">{{ store.state.displayImage.description !== '' ? store.state.displayImage.description : '无题' }}</waku-link>
           <div class="tags-div">
             <waku-tag
                 v-for="item in store.state.displayImage.tags"
                 v-bind:key="item"
-                :name="item.name"
+                :tag="item"
             ></waku-tag>
           </div>
         </div>
@@ -79,19 +79,19 @@ const handleClick = () => {
 watch(
     () => store.state.displayImage,
     (val, preVal) => {
-        console.log(store.state.displayImage)
+        // console.log(store.state.displayImage)
         const whr1 = (window.innerWidth * 0.75) / (window.innerHeight * 0.75 - 90);
         const whr2 = val.width / val.height
-        console.log(window.innerWidth)
-        console.log(window.innerHeight)
-        console.log(whr1)
-        console.log(whr2)
+        // console.log(window.innerWidth)
+        // console.log(window.innerHeight)
+        // console.log(whr1)
+        // console.log(whr2)
         if (whr1 <= whr2) info.fitType = 'width'
         else info.fitType = 'height'
-        console.log(info.fitType)
+        // console.log(info.fitType)
         if (info.fitType === 'width') info.postWidth = window.innerWidth * 0.75;
         else info.postWidth = (window.innerHeight * 0.75 - 90) / val.height * val.width
-        console.log(info.postWidth)
+        // console.log(info.postWidth)
     },
     {}
 )
