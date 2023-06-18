@@ -32,8 +32,15 @@ export class image {
     }
 }
 
-export const goto = (url : string) => {
-    if (url != null) router.push(url)
+export const goto = (url : string, newTab=false) => {
+    if(newTab) {
+        const href = router.resolve({
+            path: url
+        })
+        window.open(href.href, '_blank')
+    } else {
+        if (url != null) router.push(url)
+    }
 }
 
 export const sleep = (time : number) => {
