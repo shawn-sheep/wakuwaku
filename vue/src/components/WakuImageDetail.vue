@@ -1,5 +1,5 @@
 <template>
-  <div ref="contentRef" class="image-detail-div" v-if="store.state.isDisplayImage" @click="handleClick">
+  <div ref="contentRef" class="image-detail-div" :style="{display: store.state.isDisplayImage?'': 'none'}" @click="handleClick">
     <div
         class="image-content-div"
         :style="{
@@ -7,23 +7,27 @@
           height: info.fitType === 'height' ? '75%' : 'auto'
         }"
     >
-      <img
-          v-if="isImage"
-          :src="store.state.displayImage.src"
-          :style="{
-            width: info.fitType === 'width' ? '100%' : '',
-            height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''
-          }"
-      >
-      <video
-          v-if="isVideo"
-          :src="store.state.displayImage.src"
-          :style="{
-            width: info.fitType === 'width' ? '100%' : '',
-            height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''
-          }"
-          controls
-      ></video>
+      <waku-static-post
+          :img="store.state.displayImage"
+          :width="info.postWidth"
+      ></waku-static-post>
+<!--      <img-->
+<!--          v-if="isImage"-->
+<!--          :src="store.state.displayImage.src"-->
+<!--          :style="{-->
+<!--            width: info.fitType === 'width' ? '100%' : '',-->
+<!--            height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''-->
+<!--          }"-->
+<!--      >-->
+<!--      <video-->
+<!--          v-if="isVideo"-->
+<!--          :src="store.state.displayImage.src"-->
+<!--          :style="{-->
+<!--            width: info.fitType === 'width' ? '100%' : '',-->
+<!--            height: info.fitType === 'height' ? 'calc(100% - 90px)' : ''-->
+<!--          }"-->
+<!--          controls-->
+<!--      ></video>-->
       <div class="description-div">
         <div style="text-align: left;font-size: 18px;font-weight: 600;">
           <waku-link style="height: 30px;line-height: 30px">{{ store.state.displayImage.description }}</waku-link>
@@ -58,11 +62,14 @@ import {reactive, ref, watch, computed} from "vue";
 import WakuTag from "@/components/WakuTag";
 import WakuLink from "@/components/WakuLink";
 import WakuButton from "@/components/WakuButton";
+import WakuScroller from "@/components/WakuScroller";
+import WakuStaticPost from "@/components/WakuStaticPost";
 
 const contentRef = ref(null)
 
 const info = reactive({
-  fitType : 'width'
+  fitType : 'width',
+  postWidth : 0
 })
 
 const isImage = computed(() => {
@@ -80,19 +87,18 @@ const handleClick = () => {
 watch(
     () => store.state.displayImage,
     (val, preVal) => {
-      const img = new Image();
-      img.src = val.src
-      img.onload = () => {
-        const whr1 = (contentRef.value.clientWidth * 0.75) / (contentRef.value.clientHeight * 0.75 - 90);
-        const whr2 = img.width / img.height
-        console.log(contentRef.value.clientWidth)
-        console.log(contentRef.value.clientHeight)
+        const whr1 = (window.innerWidth * 0.75) / (window.innerHeight * 0.75 - 90);
+        const whr2 = val.width / val.height
+        console.log(window.innerWidth)
+        console.log(window.innerHeight)
         console.log(whr1)
         console.log(whr2)
         if (whr1 <= whr2) info.fitType = 'width'
         else info.fitType = 'height'
         console.log(info.fitType)
-      }
+        if (info.fitType === 'width') info.postWidth = window.innerWidth * 0.75;
+        else info.postWidth = (window.innerHeight * 0.75 - 90) / val.height * val.width
+        console.log(info.postWidth)
     },
     {}
 )
@@ -111,10 +117,6 @@ watch(
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-img {
-  border-radius: 20px;
-  overflow: hidden;
 }
 .description-div {
   width: 100%;

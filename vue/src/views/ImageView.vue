@@ -1,13 +1,13 @@
 <template>
   <div>
-    <waku-static-image :img="info.img"></waku-static-image>
+    <waku-static-post :img="info.img"></waku-static-post>
   </div>
 </template>
 
 <script setup lang="ts">
 import {defineProps, onMounted, reactive, ref, watch} from 'vue'
 import {getImageByID, image} from "@/assets/js/api";
-import WakuStaticImage from "@/components/WakuStaticImage.vue";
+import WakuStaticPost from "@/components/WakuStaticPost.vue";
 const props = defineProps<{
   id : string
 }>()

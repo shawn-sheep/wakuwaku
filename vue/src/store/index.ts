@@ -59,9 +59,12 @@ export default createStore({
     ],
     isDisplayImage: false,
     displayImage: {
+      id: '',
       src: '',
       description: '',
-      tags: ['']
+      tags: [''],
+      width: 900,
+      height: 588
     }
   },
   getters: {

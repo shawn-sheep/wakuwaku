@@ -53,7 +53,7 @@ const info = reactive<{
   imageList: [],
   imageListColumn: [[],[],[],[],[],[]],
   updating: false,
-  currentI: {before_id: 0, per_page: 1}
+  currentI: {before_id: 0, per_page: 1, quality: 'sample'}
 })
 
 const containerRef = ref<Element>()
@@ -86,7 +86,6 @@ onUnmounted(() => {
 })
 
 const resize = async () => {
-  if(info.updating) return;
   info.updating = true
   for (let i = 0; i < 6; ++i)
     info.imageListColumn[i].length = 0
@@ -102,8 +101,10 @@ const init = () => {
   if (temp < 1) temp = 1
   if (temp > 6) temp = 6
   if(temp != info.columnCount) {
-    info.columnCount = temp
-    resize()
+    if(!info.updating) {
+      info.columnCount = temp
+      resize()
+    }
   }
   info.columnWidth = containerRef.value?.clientWidth / info.columnCount
 }
