@@ -5,7 +5,7 @@
     </div>
     <div class="main">
       <waku-scroller style="height: 100%;width: 100%" scroll-direction="column">
-        <div style="height: 100%;width: 100%;box-sizing: border-box;padding: 20px">
+        <div style="height: 100%;width: 100%;box-sizing: border-box;padding: 20px;">
           <router-view></router-view>
         </div>
       </waku-scroller>

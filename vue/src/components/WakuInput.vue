@@ -58,11 +58,11 @@ watch(
 }
 input {
   position: relative;
-  width: 85%;
+  width: calc(100% - 36px);
   height: 100%;
   background-color: rgba(0,0,0,0);
   border: none;
-  margin: auto;
+  margin: 0 18px;
   color: var(--wakuwaku-font-color-dark);
   font-family: inherit;
   font-size: 14px;

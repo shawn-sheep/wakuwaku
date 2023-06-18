@@ -76,13 +76,13 @@ export const getImageByID = async (id : string) => {
     //         return store.state.recommend[i]
     //     }
     // }
-    
+
     const img = new image()
     await API.get('/posts/' + id).then((res) => {
         console.log(res)
         if (res.status === 200) {
             const res_img = res.data.images[0]
-            img.id = res_img.id
+            img.id = res.data.post_id
             img.src = res_img.sample_url
             img.description = res.data.title
             img.tags = res.data.tags
