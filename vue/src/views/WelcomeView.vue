@@ -7,10 +7,13 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "WelcomeView"
-}
+<script setup>
+import {onMounted} from "vue";
+import {checkLogin} from "@/assets/js/api";
+
+onMounted(() => {
+  checkLogin()
+})
 </script>
 
 <style scoped>

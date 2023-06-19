@@ -38,24 +38,24 @@ const containerRef = ref<Element>()
 const containerHeight = ref<number>(0)
 const isLoaded = ref<boolean>(false)
 
-watch(
-    () => props.img,
-    (val, oldVal) => {
-      if(val.sample_url != oldVal?.sample_url) {
-        isLoaded.value = false
-        img.value = val
-      }
-    },
-    {
-      immediate : true
-    }
-)
-
 let intervalHook : number
 
 onMounted(() => {
   calcContainerHeight()
   intervalHook = setInterval(calcContainerHeight, 300)
+  watch(
+      () => props.img,
+      (val, oldVal) => {
+        if(val.sample_url != oldVal?.sample_url) {
+          isLoaded.value = false
+          img.value = val
+          calcContainerHeight()
+        }
+      },
+      {
+        immediate : true
+      }
+  )
 })
 
 onUnmounted(() => {
