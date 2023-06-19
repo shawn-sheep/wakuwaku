@@ -177,7 +177,7 @@ export const getUser = async () => {
     API.get('/user').then((res) => {
         console.log(res)
         store.state.user = res.data
-        store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
+        if (!store.state.user.avatar_url) store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
     }).catch((res) => {
         console.log('get user information failed')
         goto('/enter')
@@ -188,7 +188,7 @@ export const checkLogin = async () => {
     API.get('user').then((res)=> {
         console.log(res)
         store.state.user = res.data
-        store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
+        if (!store.state.user.avatar_url) store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
         goto('/home')
     }).catch((res) => {
         console.log('get user information failed')
