@@ -45,3 +45,7 @@ Content-Type: image/jpeg
 
 < ./test.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+GET http://localhost:5000/api/autocomplete

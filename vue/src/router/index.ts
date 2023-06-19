@@ -6,6 +6,7 @@ import MainView from '../views/MainView.vue'
 import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ImageView from '../views/ImageView.vue'
+import SearchView from '../views/SearchView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -55,6 +56,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'image',
         props: true,
         component: ImageView
+      },
+      {
+        path: '/search',
+        name: 'search',
+        props: true,
+        component: SearchView
       }
     ]
   }

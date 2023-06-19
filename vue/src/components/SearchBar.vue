@@ -27,7 +27,7 @@
 
 import {ref, computed} from 'vue'
 import WakuLink from "@/components/WakuLink.vue";
-import { tag, autoComplete } from '@/assets/js/api';
+import { tag, autoComplete, goto } from '@/assets/js/api';
 
 const isFocus = ref(false)
 const selectPanel = ref(false)
@@ -48,15 +48,16 @@ const onClick = () => {
   onInput({target: input.value!})
 }
 
-const onInput = async (e: any) => {
+const onInput = (e: any) => {
   console.log('onInput', e.target.value)
-  isFocus.value = true;
   // 补全最后一词
   const value = e.target.value
   const index = value.lastIndexOf(' ')
   const lastWord = value.substring(index + 1)
-  const tags = await autoComplete(lastWord)
-  autoCompletes.value = tags
+  autoComplete(lastWord).then(res => {
+    autoCompletes.value = res
+    selectedIndex.value = -1
+  })
 }
 
 const onKeyDown = (e: any) => {
@@ -83,6 +84,7 @@ const onTab = (e: any) => {
 const onEnter = (e: any) => {
   if (selectedIndex.value >= 0) {
     onSelected(autoCompletes.value[selectedIndex.value])
+    goto('/search?tags=' + input.value!.value)
   }
 }
 
