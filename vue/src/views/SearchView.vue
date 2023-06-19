@@ -35,7 +35,9 @@ const router = useRouter();
 router.afterEach((to, from) => {
   tags.value = to.query.tags
   show.value = false
-  show.value = true
+  setTimeout(() => {
+    show.value = true
+  }, 0)
 })
 
 const onGetImageList  = async (i : any) => {
