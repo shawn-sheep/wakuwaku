@@ -24,6 +24,7 @@ import WakuScroller from "@/components/WakuScroller";
   width: 100%;
   position: fixed;
   background: var(--wakuwaku-header-background-color);
+  z-index: 1;
 }
 .main {
   padding-top: 50px;
