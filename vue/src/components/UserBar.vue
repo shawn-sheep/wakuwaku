@@ -11,7 +11,7 @@
       <div class="user-bar-item2">个人信息</div>
       <div class="user-bar-item2">我的收藏</div>
       <div class="user-bar-item2">浏览记录</div>
-      <div style="height: 80px"></div>
+      <div style="height: 60px"></div>
       <div class="user-bar-item2" @click="logout()">登出</div>
     </div>
   </transition>
