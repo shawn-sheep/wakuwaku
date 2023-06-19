@@ -1,13 +1,9 @@
 import { createStore } from 'vuex'
-import {image, postDetail, tag} from "@/assets/js/api";
+import {image, postDetail, tag, user} from "@/assets/js/api";
 
 export default createStore({
   state: {
-    user: {
-      account: '',
-      username: 'Lierick',
-      avatar: require('@/assets/img/user_avatar.jpg')
-    },
+    user: new user(),
     recommend: [
       {
         id: '1',

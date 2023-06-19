@@ -16,6 +16,12 @@
 <script setup>
 import HeaderBar from "@/components/HeaderBar";
 import WakuScroller from "@/components/WakuScroller";
+import {onMounted} from "vue";
+import {getUser} from "@/assets/js/api";
+
+onMounted(() => {
+  getUser()
+})
 </script>
 
 <style scoped>

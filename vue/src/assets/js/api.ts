@@ -2,6 +2,19 @@ import router from "@/router";
 import store from "@/store";
 import API from "@/plugins/axios"
 
+export class user {
+    avatar_url : string;
+    created_at : string;
+    email : string;
+    username : string;
+    constructor() {
+        this.avatar_url = require('@/assets/img/user_avatar.jpg')
+        this.created_at = ''
+        this.email = '3336970253@qq.com'
+        this.username = 'Lierick'
+    }
+}
+
 export class tag {
     tag_id : string;
     name : string;
@@ -111,13 +124,6 @@ export const goto = (url : string, newTab=false, useRouter=true) => {
     }
 }
 
-export const sleep = (time : number) => {
-    return new Promise((resolve, reject) => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        setTimeout(() => {}, time)
-    })
-}
-
 export const showPost = async (post : postPreview) => {
     store.state.displayPost = await getImageByID(post.post_id)
     store.state.isDisplayImage = true
@@ -156,6 +162,37 @@ export const register = async (form: { email: string, account: string, password:
         out = '注册时发生错误'
     })
     return out
+}
+
+export const logout = async () => {
+    await API.get('/logout').then((res) => {
+        console.log(res)
+        goto('/enter')
+    }).catch((res) => {
+        console.log('logout failed')
+    })
+}
+
+export const getUser = async () => {
+    API.get('/user').then((res) => {
+        console.log(res)
+        store.state.user = res.data
+        store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
+    }).catch((res) => {
+        console.log('get user information failed')
+        goto('/enter')
+    })
+}
+
+export const checkLogin = async () => {
+    API.get('user').then((res)=> {
+        console.log(res)
+        store.state.user = res.data
+        store.state.user.avatar_url = require('@/assets/img/user_avatar.jpg')
+        goto('/home')
+    }).catch((res) => {
+        console.log('get user information failed')
+    })
 }
 
 export const getImageByID = async (id : string) => {

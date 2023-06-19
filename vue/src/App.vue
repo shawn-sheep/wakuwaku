@@ -21,6 +21,7 @@
   --wakuwaku-main-background-color: white;
   --wakuwaku-header-background-color: #FFE4E1;
   --wakuwaku-header-font-color: #E8948B;
+  --wakuwaku-header-hover-color: #d08882;
   --wakuwaku-color: #FFF0F5;
   --wakuwaku-color-light: #FFF8FB;
   --wakuwaku-color-dark: #FFE1ED;
@@ -34,6 +35,7 @@
   --wakuwaku-searchbar-hover-background-color: #fcecea;
   --wakuwaku-scrollbar-color: #FFE4E1;
   --wakuwaku-scrollbar-thumb-color: #eab3ad;
+  --wakuwaku-user-bar-height: 400px
 }
 
 nav {
@@ -94,6 +96,23 @@ body {
   }
   to {
     scale: 1.2;
+  }
+}
+
+.pull-down-enter-active {
+  animation: pull-down 0.2s;
+}
+
+.pull-down-leave-active {
+  animation: pull-down 0.2s reverse;
+}
+
+@keyframes pull-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--wakuwaku-user-bar-height);
   }
 }
 
