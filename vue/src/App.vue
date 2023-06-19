@@ -30,6 +30,8 @@
   --wakuwaku-large-radius: 8px;
   --wakuwaku-medium-radius: 5px;
   --wakuwaku-searchbar-background-color: #FFFFFF;
+  --wakuwaku-searchbar-border-color: #eab3ad;
+  --wakuwaku-searchbar-hover-background-color: #fcecea;
   --wakuwaku-scrollbar-color: #FFE4E1;
   --wakuwaku-scrollbar-thumb-color: #eab3ad;
 }
