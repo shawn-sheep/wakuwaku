@@ -3,9 +3,9 @@
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">搜索结果</span>
     </div>
-    <post-player-column-infinity
+    <post-player-column-infinity v-if="show"
       :get-post-list="onGetImageList"
-      :current-i="{tags: useRoute().query.tags, per_page: 6, quality: 'sample'}"
+      :current-i="{tags: tags, per_page: 6, quality: 'sample'}"
     ></post-player-column-infinity>
   </div>
 </template>
@@ -14,9 +14,8 @@
 import store from "@/store";
 import PostPlayerColumnInfinity from "@/components/postPlayerColumnInfinity.vue";
 import {getPostPreviews, postPreview} from "@/assets/js/api";
-import {ref, onMounted, defineProps, watch} from "vue";
+import {ref, onMounted, defineProps, computed} from "vue";
 import { useRoute } from "vue-router";
-import { getCurrentInstance } from "vue";
 
 // 问号传参
 const props = defineProps({
@@ -26,8 +25,18 @@ const props = defineProps({
   }
 })
 
-let tags = useRoute().query.tags
-console.log("tags", tags)
+const show = ref(true);
+
+const tags = ref(useRoute().query.tags)
+
+// 监听路由变化
+import { useRouter } from "vue-router";
+const router = useRouter();
+router.afterEach((to, from) => {
+  tags.value = to.query.tags
+  show.value = false
+  show.value = true
+})
 
 const onGetImageList  = async (i : any) => {
   // return { newInfo: i, newImageList : store.state.recommend}
