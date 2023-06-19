@@ -164,10 +164,10 @@ def get_posts():
         - posts
     parameters:
         - in: query
-          name: page
+          name: offset
           type: integer
-          description: Page number.
-          default: 1
+          description: The offset of the posts.
+          default: 0
         - in: query
           name: before_id
           type: integer
@@ -237,8 +237,8 @@ def get_posts():
                         example: query timeout (1000ms)
     """
     try:
-        page = int(request.args.get("page", 1))
-        if page < 1:
+        offset = int(request.args.get("offset", 0))
+        if offset < 0:
             raise ValueError
         before_id = int(request.args.get("before_id", 0))
         per_page = int(request.args.get("per_page", 10))
@@ -287,7 +287,7 @@ def get_posts():
         post_query = post_query.filter(Post.post_id < before_id)
 
     post_query = post_query.order_by(order_dict[order])
-    post_query = post_query.limit(per_page).offset((page - 1) * per_page)
+    post_query = post_query.limit(per_page).offset(offset)
     # 设置超时
     db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
