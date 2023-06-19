@@ -14,8 +14,10 @@ CREATE TABLE post (
     title VARCHAR(255) NOT NULL,
     source VARCHAR(255),
     score INTEGER NOT NULL,
+    fav_count INTEGER NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    rating CHAR(1) NOT NULL DEFAULT 's',
     FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
 
@@ -26,6 +28,8 @@ CREATE TABLE image (
     preview_url VARCHAR(255) NOT NULL,
     sample_url VARCHAR(255) NOT NULL,
     original_url VARCHAR(255) NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(post_id)
 );
 
@@ -47,10 +51,12 @@ CREATE TABLE post_tag (
 CREATE TABLE comment (
     comment_id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL,
+    parent_id INTEGER,
     account_id INTEGER NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT current_timestamp,
     FOREIGN KEY (post_id) REFERENCES post(post_id),
+    FOREIGN KEY (parent_id) REFERENCES comment(comment_id) ON DELETE CASCADE,
     FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
 
@@ -58,6 +64,14 @@ CREATE TABLE vote (
     post_id INTEGER NOT NULL,
     account_id INTEGER NOT NULL,
     value INTEGER NOT NULL,
+    PRIMARY KEY (post_id, account_id),
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
+    FOREIGN KEY (account_id) REFERENCES account(account_id)
+);
+
+CREATE TABLE favorite (
+    post_id INTEGER NOT NULL,
+    account_id INTEGER NOT NULL,
     PRIMARY KEY (post_id, account_id),
     FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (account_id) REFERENCES account(account_id)

@@ -39,10 +39,12 @@ class Post(db.Model):
     title = db.Column(db.String(255), nullable=False)
     source = db.Column(db.String(255))
     score = db.Column(db.Integer, nullable=False)
+    fav_count = db.Column(db.Integer, nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(
         db.DateTime, server_default=func.current_timestamp(), nullable=False
     )
+    rating = db.Column(db.String(1), nullable=False, default="s")
 
     account = relationship("Account", backref=db.backref("posts", lazy=True))
 
@@ -53,8 +55,10 @@ class Post(db.Model):
             "title": self.title,
             "source": self.source,
             "score": self.score,
+            "fav_count": self.fav_count,
             "content": self.content,
             "created_at": self.created_at,
+            "rating": self.rating,
         }
 
 class Image(db.Model):
@@ -116,6 +120,7 @@ class Comment(db.Model):
 
     comment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     post_id = db.Column(db.Integer, ForeignKey("post.post_id"), nullable=False)
+    parent_id = db.Column(db.Integer, ForeignKey("comment.comment_id"))
     account_id = db.Column(db.Integer, ForeignKey("account.account_id"), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(
@@ -124,11 +129,13 @@ class Comment(db.Model):
 
     account = relationship("Account", backref=db.backref("comments", lazy=True))
     post = relationship("Post", backref=db.backref("comments", lazy=True))
+    parent = relationship("Comment", remote_side=[comment_id])
 
     def to_dict(self):
         return {
             "comment_id": self.comment_id,
             "post_id": self.post_id,
+            "parent_id": self.parent_id,
             "account_id": self.account_id,
             "content": self.content,
             "created_at": self.created_at,
@@ -146,3 +153,14 @@ class Vote(db.Model):
 
     account = relationship("Account", backref=db.backref("votes", lazy=True))
     post = relationship("Post", backref=db.backref("votes", lazy=True))
+
+class Favorite(db.Model):
+    __tablename__ = "favorite"
+
+    post_id = db.Column(db.Integer, ForeignKey("post.post_id"), primary_key=True)
+    account_id = db.Column(
+        db.Integer, ForeignKey("account.account_id"), primary_key=True
+    )
+
+    account = relationship("Account", backref=db.backref("favorites", lazy=True))
+    post = relationship("Post", backref=db.backref("favorites", lazy=True))

@@ -32,6 +32,11 @@ specs_dict = {
                     "description": "The source of the post.",
                     "example": "https://www.google.com",
                 },
+                "fav_count": {
+                    "type": "integer",
+                    "description": "The favorite count of the post.",
+                    "example": 123,
+                },
                 "score": {
                     "type": "integer",
                     "description": "The score of the post.",
@@ -46,7 +51,13 @@ specs_dict = {
                     "type": "string",
                     "description": "The creation time of the post.",
                     "example": "Wed, 01 Jan 2020 00:00:00 GMT",
-                }
+                },
+                "rating": {
+                    "type": "string",
+                    "description": "The rating of the post.",
+                    "enum": ["g", "s", "q", "e"],
+                    "example": "g",
+                },
             }
         },
         "PostPreview": {
@@ -119,6 +130,11 @@ specs_dict = {
                     "description": "The height of the image.",
                     "example": 123,
                 },
+                "image_count": {
+                    "type": "integer",
+                    "description": "The number of images in the post.",
+                    "example": 1,
+                },
             }
         },
         "Tag": {
@@ -151,6 +167,8 @@ specs_dict = {
 
 specs_dict["definitions"]["PostPreview"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostPreview"]["properties"]}
 specs_dict["definitions"]["PostDetail"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostDetail"]["properties"]}
+
+from sqlalchemy.exc import OperationalError
 
 @bp.route("/posts", methods=["GET"])
 @swag_from(specs_dict)
@@ -260,14 +278,10 @@ def get_posts():
     if len(tags_info) != len(tags.split()):
         unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
         return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
-    
-    url_dict = {
-        "preview": Image.preview_url,
-        "sample": Image.sample_url,
-        "original": Image.original_url,
-    }
 
-    post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height).outerjoin(Post.images)
+    # post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height).outerjoin(Post.images)
+    post_query = db.session.query(Post.post_id)
+
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
 
@@ -291,17 +305,30 @@ def get_posts():
     # 设置超时
     db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
-    from sqlalchemy.exc import OperationalError
+    url_dict = {
+        "preview": Image.preview_url,
+        "sample": Image.sample_url,
+        "original": Image.original_url,
+    }
+
+    from sqlalchemy import func, subquery, and_
+    subquery = db.session.query(Image.post_id, func.min(Image.image_id).label('min_image_id'), func.count(Image.image_id).label('image_count'))\
+        .filter(Image.post_id.in_(post_query.subquery()))\
+        .group_by(Image.post_id).subquery()
+    post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height, subquery.c.image_count)\
+        .select_from(Post)\
+        .join(subquery, and_(Post.post_id == subquery.c.post_id))\
+        .join(Image, Image.image_id == subquery.c.min_image_id)\
+        .order_by(order_dict[order])
 
     posts = {}
     try:
-        for post, preview_url, width, height in post_query.all():
-            if post.post_id not in posts:
-                posts[post.post_id] = post.to_dict()
-                # 若url以mp4, webm, ogg结尾，降级为preview
-                if preview_url.split(".")[-1] in ["mp4", "webm", "ogg"]:
-                    preview_url = post.images[0].preview_url
-                posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height})
+        for post, preview_url, width, height, image_count in post_query.all():
+            posts[post.post_id] = post.to_dict()
+            # 若url以mp4, webm, ogg结尾，降级为preview
+            if preview_url.split(".")[-1] in ["mp4", "webm", "ogg"]:
+                preview_url = post.images[0].preview_url
+            posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height, "image_count": image_count})
     except OperationalError as e:
         if "canceling statement due to statement timeout" in str(e):
             return jsonify({"message": "query timeout (1000ms)"}), 504
@@ -358,6 +385,10 @@ def get_post(post_id):
         
     return jsonify(res), 200
 
+from sqlalchemy import insert
+from wakuwaku.utils import save_file
+from PIL import Image as PILImage
+
 @bp.route("/posts", methods=["POST"])
 @login_required
 def create_post():
@@ -382,6 +413,11 @@ def create_post():
             type: string
             required: true
             description: The source of the post.
+        -   name: rating
+            in: formData
+            type: string
+            required: true
+            description: The rating of the post.
         -   name: tags
             in: formData
             type: string
@@ -435,10 +471,9 @@ def create_post():
         source = request.form["source"]
         tags = request.form.get("tags", "").split()
         images = request.files.getlist("images")
+        rating = request.form.get("rating", "s")
     except KeyError:
         return jsonify({"message": "invalid parameters"}), 400
-
-    from sqlalchemy import insert
 
     insert_post = insert(Post).values(
         account_id=current_user.account_id,
@@ -446,6 +481,8 @@ def create_post():
         content=content,
         source=source,
         score=0,
+        fav_count=0,
+        rating=rating,
     ).returning(Post.post_id)
 
     # 添加 tags
@@ -462,8 +499,6 @@ def create_post():
 
     # 添加 images
     insert_images = []
-    from wakuwaku.utils import save_file
-    from PIL import Image as PILImage
     for image in images:
         # 把image转为PILImage
         original_image = PILImage.open(image)

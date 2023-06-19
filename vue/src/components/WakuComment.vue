@@ -1,11 +1,11 @@
 <template>
   <div class="comment-div">
-    <waku-avatar :src="props.comment.avatar" :size="40"></waku-avatar>
+    <waku-avatar :src="props.comment.avatar_url ? props.comment.avatar_url : require('@/assets/img/user_avatar.jpg')" :size="40"></waku-avatar>
     <div style="width: 100%">
       <div class="username-div">{{ props.comment.username }}</div>
       <div class="content-div">{{ props.comment.content }}</div>
       <waku-link style="width: 50px;height: 20px;font-size: 12px" @click="emits('reply',props.comment)">回复</waku-link>
-      <waku-comment v-for="item in props.comment.reply" :key="item" :comment="item" @reply="fn"></waku-comment>
+      <waku-comment v-for="item in props.comment.replies" :key="item.comment_id" :comment="item" @reply="fn"></waku-comment>
     </div>
   </div>
 </template>

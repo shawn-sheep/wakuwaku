@@ -22,7 +22,7 @@
         <div class="title-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
         <div class="content-div">{{ info.post.content }}</div>
         <div class="tag-div">
-          <waku-tag v-for="tag in info.post.tags" :key="tag" :tag="tag"></waku-tag>
+          <waku-tag v-for="tag in info.post.tags" :key="tag.tag_id" :tag="tag"></waku-tag>
         </div>
         <waku-link class="source-div" @click="goto(info.post.source, true, false)">{{ 'source:' + info.post.source }}</waku-link>
         <div style="display: flex;flex-direction: row;gap: 20px">
@@ -37,7 +37,7 @@
         </div>
         <div style="margin: 20px 0; height: 2px;background-color: #AAAAAA"></div>
         <div style="display: flex;flex-direction: row;margin: 20px 0;gap: 20px">
-          <waku-avatar :src="store.state.user.avatar" :size="40" style="margin: auto 0"></waku-avatar>
+          <waku-avatar :src="store.state.user.avatar_url" :size="40" style="margin: auto 0"></waku-avatar>
           <waku-input style="background-color: rgba(0, 0, 0, 0.02);width: 100%" label="发表评论">
             <template v-slot:before>
               <waku-deletable-item v-if="info.currentReply !== undefined" @delete="onDelete" style="height: 100%;font-size: 12px">
@@ -49,7 +49,7 @@
           <waku-button style="width: 100px;text-align: center" :enable="true">发送</waku-button>
         </div>
         <div class="comments-div">
-          <waku-comment v-for="comment in info.comments" :key="comment" :comment="comment" @reply="onReply"></waku-comment>
+          <waku-comment v-for="comment in info.comments" :key="comment.comment_id" :comment="comment" @reply="onReply"></waku-comment>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import {defineProps, onMounted, reactive, ref, watch} from 'vue'
-import {getImageByID, image, goto, comment, postDetail} from "@/assets/js/api";
+import {getImageByID, image, goto, comment, postDetail, getComments} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
@@ -82,7 +82,7 @@ const info = reactive<{
   currentReply : undefined
 })
 
-onMounted(() => {
+onMounted(async () => {
   watch(
       () => props.id,
       (val, oldVal) => {
@@ -92,7 +92,7 @@ onMounted(() => {
         immediate: true
       }
   )
-  info.comments = getComments()
+  info.comments = await getComments(props.id, 1)
 })
 
 const updateImage = (id : string) => {
@@ -102,16 +102,16 @@ const updateImage = (id : string) => {
   })
 }
 
-const getComments = () => {
-  let out = []
-  let fa = new comment()
-  let fa2 = new comment()
-  let child = new comment()
-  fa.reply.push(child)
-  out.push(fa)
-  out.push(fa2)
-  return out
-}
+// const getComments = () => {
+//   let out = []
+//   let fa = new comment()
+//   let fa2 = new comment()
+//   let child = new comment()
+//   fa.replies.push(child)
+//   out.push(fa)
+//   out.push(fa2)
+//   return out
+// }
 
 const onReply = (comment : comment) => {
   console.log(comment)

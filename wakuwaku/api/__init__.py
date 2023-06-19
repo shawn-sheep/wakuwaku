@@ -8,3 +8,4 @@ from wakuwaku.api import posts
 from wakuwaku.api import tags
 from wakuwaku.api import votes
 from wakuwaku.api import comments
+from wakuwaku.api import favorite

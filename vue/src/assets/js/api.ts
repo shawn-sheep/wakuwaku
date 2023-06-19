@@ -37,6 +37,7 @@ export class postPreview {
     score: number;
     source: string;
     title: string;
+    image_count: number;
     constructor() {
         this.account_id = ''
         this.content = ''
@@ -46,6 +47,7 @@ export class postPreview {
         this.score = 0
         this.source = ''
         this.title = ''
+        this.image_count = 0
     }
 }
 
@@ -94,19 +96,35 @@ export class image {
 }
 
 export class comment {
-    id: string;
-    avatar: string;
+    comment_id: string;
+    account_id: string;
+    avatar_url: string;
     username: string;
     content: string;
-    reply: comment[]
+    replies: comment[]
     constructor() {
-        this.id = ''
-        this.avatar = require('@/assets/img/user_avatar.jpg')
+        this.comment_id = ''
+        this.account_id = ''
+        this.avatar_url = require('@/assets/img/user_avatar.jpg')
         this.username = 'Lierick'
         this.content = 'default comment\ndefault comment\ndefault comment'
-        this.reply = []
+        this.replies = []
     }
 }
+
+export const getComments = async (post_id : string, page : number) => {
+    let out : comment[] = []
+    await API.get('/comments', { params: { post_id: post_id, page: page, per_page: 10 } }).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
+
 
 export const goto = (url : string, newTab=false, useRouter=true) => {
     if(newTab) {

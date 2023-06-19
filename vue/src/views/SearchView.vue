@@ -5,7 +5,7 @@
     </div>
     <post-player-column-infinity v-if="show"
       :get-post-list="onGetImageList"
-      :current-i="{tags: tags, per_page: 6, quality: 'sample'}"
+      :current-i="{tags: tags, per_page: 6, quality: 'sample', offset: 0}"
     ></post-player-column-infinity>
   </div>
 </template>
@@ -44,7 +44,7 @@ const onGetImageList  = async (i : any) => {
   // return { newInfo: i, newImageList : store.state.recommend}
   console.log("onGetImageList", i)
   let res = await getPostPreviews(i)
-  i.before_id = res[res.length - 1].post_id
+  i.offset += i.per_page
   return { newInfo: i, newPostList : res}
 }
 </script>
