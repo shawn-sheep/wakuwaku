@@ -12,7 +12,7 @@
       >
         <waku-post
             v-for="item in info.postListColumn[i-1]"
-            :key="item"
+            :key="item.post_id"
             :post="item"
             fix-types="width"
             :size="info.columnWidth - 10"
@@ -32,12 +32,14 @@ import WakuPost from "@/components/WakuPost.vue";
 const props = withDefaults(defineProps<{
   columnMinWidth: number,
   // getImageList: (info : any) => {newInfo : any, newImageList : image[]}
-  getPostList: (info : any) => Promise<{newInfo : any, newPostList : postPreview[]}>
+  getPostList: (info : any) => Promise<{newInfo : any, newPostList : postPreview[]}>,
+  currentI: any
 }>(), {
   columnMinWidth: 300,
   getPostList: async (info : any) => {
     return {newInfo: info, newPostList: []}
-  }
+  },
+  currentI: {before_id: 0, per_page: 6, quality: 'sample'}
 })
 
 const info = reactive<{
@@ -53,7 +55,7 @@ const info = reactive<{
   postList: [],
   postListColumn: [[],[],[],[],[],[]],
   updating: false,
-  currentI: {before_id: 0, per_page: 1, quality: 'sample'}
+  currentI: props.currentI
 })
 
 const containerRef = ref<Element>()

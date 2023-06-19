@@ -3,17 +3,18 @@
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">搜索结果</span>
     </div>
-<!--    <post-player-column-infinity-->
-<!--        :get-image-list="onGetImageList"-->
-<!--    ></-player-column-infinity>-->
+    <post-player-column-infinity v-if="show"
+      :get-post-list="onGetImageList"
+      :current-i="{tags: tags, per_page: 6, quality: 'sample'}"
+    ></post-player-column-infinity>
   </div>
 </template>
 
 <script setup lang="ts">
 import store from "@/store";
-import ImagePlayerColumnInfinity from "@/components/ImagePlayerColumnInfinity.vue";
-import {image, getImages} from "@/assets/js/api";
-import {ref, onMounted, defineProps} from "vue";
+import PostPlayerColumnInfinity from "@/components/postPlayerColumnInfinity.vue";
+import {getPostPreviews, postPreview} from "@/assets/js/api";
+import {ref, onMounted, defineProps, computed} from "vue";
 import { useRoute } from "vue-router";
 
 // 问号传参
@@ -24,18 +25,25 @@ const props = defineProps({
   }
 })
 
-onMounted(async () => {
-  // 从路由中获取参数
-  let tags = useRoute().query.tags
-  console.log("tags", tags)
+const show = ref(true);
+
+const tags = ref(useRoute().query.tags)
+
+// 监听路由变化
+import { useRouter } from "vue-router";
+const router = useRouter();
+router.afterEach((to, from) => {
+  tags.value = to.query.tags
+  show.value = false
+  show.value = true
 })
 
 const onGetImageList  = async (i : any) => {
   // return { newInfo: i, newImageList : store.state.recommend}
   console.log("onGetImageList", i)
-  let res = await getImages(i)
-  i.before_id = res[res.length - 1].id
-  return { newInfo: i, newImageList : res}
+  let res = await getPostPreviews(i)
+  i.before_id = res[res.length - 1].post_id
+  return { newInfo: i, newPostList : res}
 }
 </script>
 
