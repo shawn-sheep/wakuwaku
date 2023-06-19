@@ -19,11 +19,22 @@
             </div>
           </div>
         </div>
-        <div class="description-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
+        <div class="title-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
+        <div class="content-div">{{ info.post.content }}</div>
         <div class="tag-div">
           <waku-tag v-for="tag in info.post.tags" :key="tag" :tag="tag"></waku-tag>
         </div>
-        <div class="rect-div">{{ info.post.imgs[0].width + 'x' + info.post.imgs[0].height }}</div>
+        <waku-link class="source-div" @click="goto(info.post.source, true, false)">{{ 'source:' + info.post.source }}</waku-link>
+        <div style="display: flex;flex-direction: row;gap: 20px">
+          <div class="rect-div">{{ info.post.imgs[0].width + 'x' + info.post.imgs[0].height}}</div>
+          <div class="date-div">{{ info.post.date }}</div>
+          <div class="score-div">
+            {{ info.post.score }}
+            <div style="display: inline-block;height: 14px;vertical-align: bottom">
+              <svg style="width: 14px;height: 14px" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" fill="CurrentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 5.72c-2.624-4.517-10-3.198-10 2.461 0 3.725 4.345 7.727 9.303 12.54.194.189.446.283.697.283s.503-.094.697-.283c4.977-4.831 9.303-8.814 9.303-12.54 0-5.678-7.396-6.944-10-2.461z" fill-rule="nonzero"/></svg>
+            </div>
+          </div>
+        </div>
         <div style="margin: 20px 0; height: 2px;background-color: #AAAAAA"></div>
         <div style="display: flex;flex-direction: row;margin: 20px 0;gap: 20px">
           <waku-avatar :src="store.state.user.avatar" :size="40" style="margin: auto 0"></waku-avatar>
@@ -56,6 +67,7 @@ import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store"
 import WakuComment from "@/components/WakuComment.vue";
 import WakuDeletableItem from "@/components/WakuDeletableItem.vue";
+import WakuLink from "@/components/WakuLink.vue";
 const props = defineProps<{
   id : string
 }>()
@@ -126,10 +138,13 @@ const onDelete = () => {
   text-align: right;
   margin: 20px 0;
 }
-.description-div {
+.title-div {
   font-size: 24px;
   margin: 20px 0;
   font-weight: 800;
+}
+.content-div {
+  white-space: pre-wrap;
 }
 .tag-div {
   font-weight: 500;
@@ -137,7 +152,12 @@ const onDelete = () => {
   line-height: 22px;
   margin: 20px 0;
 }
-.rect-div {
+.rect-div,.date-div,.score-div {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  /*margin: 20px 0;*/
+}
+.source-div {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
   margin: 20px 0;

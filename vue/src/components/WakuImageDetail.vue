@@ -24,7 +24,7 @@
 <!--      ></video>-->
       <div class="description-div">
         <div class="information-div" style="">
-          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayPost.post_id">{{ store.state.displayPost.title !== '' ? store.state.displayPost.title : '无题' }}</waku-link>
+          <waku-link style="height: 30px;line-height: 30px" :route="'/post/' + store.state.displayPost.post_id">{{ store.state.displayPost.title !== '' ? store.state.displayPost.title : '无题' }}</waku-link>
           <div class="tags-div">
             <waku-tag
                 v-for="item in store.state.displayPost.tags"

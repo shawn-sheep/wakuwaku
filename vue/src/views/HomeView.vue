@@ -35,7 +35,7 @@ const onGetImageList  = async (i : any) => {
   // return { newInfo: i, newImageList : store.state.recommend}
   console.log("onGetImageList", i)
   let res = await getPostPreviews(i)
-  i.before_id = res[res.length - 1].post_id
+  if (res.length > 0) i.before_id = res[res.length - 1].post_id
   return { newInfo: i, newPostList : res}
 }
 </script>
