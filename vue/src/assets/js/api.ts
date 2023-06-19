@@ -156,3 +156,24 @@ export const getImages = async (params : any) => {
     })
     return imgs
 }
+
+export const autoComplete = async (q: string) => {
+    const tags : tag[] = []
+    await API.get('/autocomplete', { params: { q } }).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            for (const i in res.data.tags) {
+                const res_data = res.data.tags[i]
+                const tg = new tag()
+                tg.id = res_data.tag_id
+                tg.name = res_data.name
+                tg.count = res_data.count
+                tg.type = res_data.type
+                tags.push(tg)
+            }
+        }
+    }).catch((res) => {
+        console.log("get tag error")
+    })
+    return tags
+}
