@@ -3,9 +3,9 @@
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">搜索结果</span>
     </div>
-    <image-player-column-infinity
-        :get-image-list="onGetImageList"
-    ></image-player-column-infinity>
+<!--    <post-player-column-infinity-->
+<!--        :get-image-list="onGetImageList"-->
+<!--    ></-player-column-infinity>-->
   </div>
 </template>
 

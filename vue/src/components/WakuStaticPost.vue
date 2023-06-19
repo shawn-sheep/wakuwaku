@@ -9,12 +9,12 @@
     </transition>
     <img
         v-if="isImage"
-        :src="img === undefined ? '': img.original_url"
+        :src="img === undefined ? '': img.sample_url"
         @load="onLoaded"
     >
     <video
         v-if="isVideo"
-        :src="img === undefined ? '': img.original_url"
+        :src="img === undefined ? '': img.sample_url"
         @load="onLoaded"
         controls
     ></video>
@@ -41,7 +41,7 @@ const isLoaded = ref<boolean>(false)
 watch(
     () => props.img,
     (val, oldVal) => {
-      if(val.original_url != oldVal?.original_url) {
+      if(val.sample_url != oldVal?.sample_url) {
         isLoaded.value = false
         img.value = val
       }
@@ -77,12 +77,12 @@ const calcContainerHeight = () => {
 
 const isImage = computed(() => {
   if (img.value === undefined) return false;
-  return img.value.original_url.match(/\.(jpg|jpeg|png|gif)$/i)
+  return img.value.sample_url.match(/\.(jpg|jpeg|png|gif)$/i)
 })
 
 const isVideo = computed(() => {
   if (img.value === undefined) return false;
-  return img.value.original_url.match(/\.(mp4|webm|ogg)$/i)
+  return img.value.sample_url.match(/\.(mp4|webm|ogg)$/i)
 })
 
 const onLoaded = () => {

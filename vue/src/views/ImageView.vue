@@ -1,7 +1,7 @@
 <template>
   <div style="background-color: rgba(0, 0, 0, 0.04); padding: 20px">
     <div style="border-radius: 10px;overflow: hidden;background-color: #FFFFFF">
-      <waku-static-post :img="info.img" class="post-div" @click="goto(info.img.src, true, false)"></waku-static-post>
+      <waku-static-post :img="info.post.imgs[0]" class="post-div" @click="goto(info.post.imgs[0].original_url, true, false)"></waku-static-post>
       <div class="information-div">
         <div class="like-div">
           <div style="display: inline-block">
@@ -19,11 +19,11 @@
             </div>
           </div>
         </div>
-        <div class="description-div">{{ info.img.description !== '' ? info.img.description : '无题' }}</div>
+        <div class="description-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
         <div class="tag-div">
-          <waku-tag v-for="tag in info.img.tags" :key="tag" :tag="tag"></waku-tag>
+          <waku-tag v-for="tag in info.post.tags" :key="tag" :tag="tag"></waku-tag>
         </div>
-        <div class="rect-div">{{ info.img.width + 'x' + info.img.height }}</div>
+        <div class="rect-div">{{ info.post.imgs[0].width + 'x' + info.post.imgs[0].height }}</div>
         <div style="margin: 20px 0; height: 2px;background-color: #AAAAAA"></div>
         <div style="display: flex;flex-direction: row;margin: 20px 0;gap: 20px">
           <waku-avatar :src="store.state.user.avatar" :size="40" style="margin: auto 0"></waku-avatar>
@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import {defineProps, onMounted, reactive, ref, watch} from 'vue'
-import {getImageByID, image, goto, comment} from "@/assets/js/api";
+import {getImageByID, image, goto, comment, postDetail} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
@@ -61,11 +61,11 @@ const props = defineProps<{
 }>()
 
 const info = reactive<{
-  img : image
+  post : postDetail
   comments : comment[]
   currentReply ?: comment
 }>({
-  img : new image(),
+  post : new postDetail(),
   comments: [],
   currentReply : undefined
 })
@@ -85,8 +85,8 @@ onMounted(() => {
 
 const updateImage = (id : string) => {
   getImageByID(id).then((res) => {
-    info.img = res
-    console.log(info.img)
+    info.post = res
+    console.log(info.post)
   })
 }
 
