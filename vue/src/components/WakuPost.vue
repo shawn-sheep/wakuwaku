@@ -2,7 +2,7 @@
   <div class="image-div" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @click="onClick" :class="{'loaded': isLoaded}">
     <div class="info-div" :style="{opacity: ishover? 1 : 0}">
       <div class="info-center-div">
-        {{ props.img.description }}
+        {{ props.post.title }}
       </div>
     </div>
     <transition name="fade" appear>
@@ -21,7 +21,7 @@
     >
       <img
           @load = "onLoad"
-          v-lazyload="props.img.src"
+          v-lazyload="props.post.img.preview_url"
           :style="{
              width: props.fixTypes === 'width' ? '100%' : (isLoaded ? '' : props.size + 'px'),
              height: props.fixTypes === 'height' ? '100%' : (isLoaded ? '' : props.size + 'px'),
@@ -31,16 +31,20 @@
   </div>
 </template>
 
-<script setup>
-import {ref} from "vue";
-import {showImage} from "@/assets/js/api";
+<script setup lang="ts">
+import {onMounted, ref} from "vue";
+import {postPreview, showPost} from "@/assets/js/api";
 
 // eslint-disable-next-line no-undef
-const props = defineProps({
-  img: Object,
-  size: Number,
-  fixTypes: String
+const props = withDefaults(defineProps<{
+  post: postPreview,
+  size: number,
+  fixTypes: string
+}>(), {
+  size: 100,
+  fixTypes: 'width'
 })
+
 
 const ishover = ref(false)
 
@@ -55,7 +59,7 @@ const onMouseLeave = () => {
 }
 
 const onClick = () => {
-  showImage(props.img)
+  showPost(props.post)
 }
 
 const onLoad = () => {

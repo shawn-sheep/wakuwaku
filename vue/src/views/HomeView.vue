@@ -3,41 +3,40 @@
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">排行榜</span>
     </div>
-    <ImagePlayerRow :image-list="rank_images"></ImagePlayerRow>
+    <post-player-row :post-list="rank_images"></post-player-row>
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">最新更新</span>
     </div>
-    <ImagePlayerRow :image-list="recent_images"></ImagePlayerRow>
+    <post-player-row :post-list="recent_images"></post-player-row>
     <div style="text-align: left">
       <span style="font-size: 18px; font-weight: 800; color: var(--wakuwaku-font-color); padding-left: 20px;padding-top: 5px">每日推荐</span>
     </div>
-    <image-player-column-infinity
-        :get-image-list="onGetImageList"
-    ></image-player-column-infinity>
+    <post-player-column-infinity
+        :get-post-list="onGetImageList"
+    ></post-player-column-infinity>
   </div>
 </template>
 
 <script setup lang="ts">
-import ImagePlayerRow from "@/components/ImagePlayerRow";
-import store from "@/store";
-import ImagePlayerColumnInfinity from "@/components/ImagePlayerColumnInfinity";
-import {image, getImages} from "@/assets/js/api";
+import PostPlayerRow from "@/components/PostPlayerRow.vue";
+import PostPlayerColumnInfinity from "@/components/postPlayerColumnInfinity.vue";
+import {getPostPreviews, postPreview} from "@/assets/js/api";
 import {ref, onMounted} from "vue";
 
-let rank_images = ref<image[]>([])
-let recent_images = ref<image[]>([])
+let rank_images = ref<postPreview[]>([])
+let recent_images = ref<postPreview[]>([])
 
 onMounted(async () => {
-  rank_images.value = await getImages({order: "rank"})
-  recent_images.value = await getImages({order: "new"})
+  rank_images.value = await getPostPreviews({order: "rank"})
+  recent_images.value = await getPostPreviews({order: "new"})
 })
 
 const onGetImageList  = async (i : any) => {
   // return { newInfo: i, newImageList : store.state.recommend}
   console.log("onGetImageList", i)
-  let res = await getImages(i)
-  i.before_id = res[res.length - 1].id
-  return { newInfo: i, newImageList : res}
+  let res = await getPostPreviews(i)
+  i.before_id = res[res.length - 1].post_id
+  return { newInfo: i, newPostList : res}
 }
 </script>
 

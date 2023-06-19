@@ -2,7 +2,7 @@
   <div ref="contentRef" class="image-detail-div" :style="{display: store.state.isDisplayImage?'': 'none'}" @click="handleClick">
     <div class="image-content-div">
       <waku-static-post
-          :img="store.state.displayImage"
+          :img="store.state.displayPost.imgs[0]"
           :width="info.postWidth"
       ></waku-static-post>
 <!--      <img-->
@@ -24,10 +24,10 @@
 <!--      ></video>-->
       <div class="description-div">
         <div class="information-div" style="">
-          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayImage.id">{{ store.state.displayImage.description !== '' ? store.state.displayImage.description : '无题' }}</waku-link>
+          <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayPost.post_id">{{ store.state.displayPost.title !== '' ? store.state.displayPost.title : '无题' }}</waku-link>
           <div class="tags-div">
             <waku-tag
-                v-for="item in store.state.displayImage.tags"
+                v-for="item in store.state.displayPost.tags"
                 v-bind:key="item"
                 :tag="item"
             ></waku-tag>
@@ -71,11 +71,11 @@ const handleClick = () => {
 }
 
 watch(
-    () => store.state.displayImage,
+    () => store.state.displayPost,
     (val, preVal) => {
         // console.log(store.state.displayImage)
         const whr1 = (window.innerWidth * 0.75) / (window.innerHeight * 0.75 - 90);
-        const whr2 = val.width / val.height
+        const whr2 = val.imgs[0].width / val.imgs[0].height
         // console.log(window.innerWidth)
         // console.log(window.innerHeight)
         // console.log(whr1)
@@ -84,8 +84,9 @@ watch(
         else info.fitType = 'height'
         // console.log(info.fitType)
         if (info.fitType === 'width') info.postWidth = window.innerWidth * 0.75;
-        else info.postWidth = (window.innerHeight * 0.75 - 90) / val.height * val.width
+        else info.postWidth = (window.innerHeight * 0.75 - 90) / val.imgs[0].height * val.imgs[0].width
         // console.log(info.postWidth)
+        console.log(val)
     },
     {}
 )

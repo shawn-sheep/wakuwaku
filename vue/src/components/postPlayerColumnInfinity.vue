@@ -10,13 +10,13 @@
           }"
           ref="columnsRef"
       >
-        <waku-image
-            v-for="item in info.imageListColumn[i-1]"
+        <waku-post
+            v-for="item in info.postListColumn[i-1]"
             :key="item"
-            :img="item"
+            :post="item"
             fix-types="width"
             :size="info.columnWidth - 10"
-        ></waku-image>
+        ></waku-post>
       </div>
     </div>
     <div class="more" ref="moreRef">
@@ -26,32 +26,32 @@
 
 <script setup lang="ts">
 import {reactive, withDefaults, defineProps, onMounted, ref, onUnmounted} from "vue";
-import {image, sleep} from "@/assets/js/api";
-import WakuImage from "@/components/WakuImage.vue";
+import {postPreview} from "@/assets/js/api";
+import WakuPost from "@/components/WakuPost.vue";
 
 const props = withDefaults(defineProps<{
   columnMinWidth: number,
   // getImageList: (info : any) => {newInfo : any, newImageList : image[]}
-  getImageList: (info : any) => Promise<{newInfo : any, newImageList : image[]}>
+  getPostList: (info : any) => Promise<{newInfo : any, newPostList : postPreview[]}>
 }>(), {
   columnMinWidth: 300,
-  getImageList: async (info : any) => {
-    return {newInfo: info, newImageList: []}
+  getPostList: async (info : any) => {
+    return {newInfo: info, newPostList: []}
   }
 })
 
 const info = reactive<{
   columnCount: number,
   columnWidth: number,
-  imageList: image[],
-  imageListColumn: Array<image>[],
+  postList: postPreview[],
+  postListColumn: Array<postPreview>[],
   updating: boolean,
   currentI: any
 }>({
   columnCount: 1,
   columnWidth: 0,
-  imageList: [],
-  imageListColumn: [[],[],[],[],[],[]],
+  postList: [],
+  postListColumn: [[],[],[],[],[],[]],
   updating: false,
   currentI: {before_id: 0, per_page: 1, quality: 'sample'}
 })
@@ -88,9 +88,9 @@ onUnmounted(() => {
 const resize = async () => {
   info.updating = true
   for (let i = 0; i < 6; ++i)
-    info.imageListColumn[i].length = 0
-  for (let i in info.imageList) {
-    await insert(info.imageList[i])
+    info.postListColumn[i].length = 0
+  for (let i in info.postList) {
+    await insert(info.postList[i])
   }
   info.currentI.per_page = info.columnCount - 1
   info.updating = false
@@ -109,7 +109,7 @@ const init = () => {
   info.columnWidth = containerRef.value?.clientWidth / info.columnCount
 }
 
-const insert = async (img : image) => {
+const insert = async (post : postPreview) => {
   let minHeight = 999999
   let c
   for (let column in columnsRef.value) {
@@ -120,15 +120,15 @@ const insert = async (img : image) => {
     }
   }
   console.log(c)
-  info.imageListColumn[Number(c)].push(img)
+  info.postListColumn[Number(c)].push(post)
   // sleep(1000)
 }
 
 const more = async () => {
-  const {newInfo, newImageList} = await props.getImageList(info.currentI)
-  for (let item in newImageList) {
-    info.imageList.push(newImageList[item])
-    await insert(newImageList[item])
+  const {newInfo, newPostList} = await props.getPostList(info.currentI)
+  for (let item in newPostList) {
+    info.postList.push(newPostList[item])
+    await insert(newPostList[item])
   }
   info.currentI = newInfo
 }

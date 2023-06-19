@@ -2,26 +2,27 @@
   <div style="width: 100%;margin-bottom: 10px">
     <waku-scroller>
       <div class="image-display-div">
-        <waku-image
-            v-for="item in props.imageList"
+        <waku-post
+            v-for="item in props.postList"
             v-bind:key="item"
-            :img="item"
+            :post="item"
             :size="200"
             fix-types="height"
-        ></waku-image>
+        ></waku-post>
       </div>
     </waku-scroller>
   </div>
 </template>
 
 <script setup lang="ts">
-import WakuImage from "@/components/WakuImage.vue";
+import WakuPost from "@/components/WakuPost.vue";
 import WakuScroller from "@/components/WakuScroller";
+import {postPreview} from "@/assets/js/api";
 
 // eslint-disable-next-line no-undef
-const props = defineProps({
-  imageList : Array
-})
+const props = defineProps<{
+  postList: postPreview[]
+}>()
 </script>
 
 <style scoped>

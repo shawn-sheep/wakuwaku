@@ -175,6 +175,10 @@ input {
 input:focus-visible {
   outline: none;
 }
+input::-webkit-input-placeholder {
+  color: inherit;
+  opacity: 0.7;
+}
 svg {
   width: 20px;
   height: 20px;

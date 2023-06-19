@@ -1,5 +1,5 @@
 import { createStore } from 'vuex'
-import {tag} from "@/assets/js/api";
+import {image, postDetail, tag} from "@/assets/js/api";
 
 export default createStore({
   state: {
@@ -59,14 +59,7 @@ export default createStore({
       }
     ],
     isDisplayImage: false,
-    displayImage: {
-      id: '',
-      src: '',
-      description: '',
-      tags: [new tag()],
-      width: 900,
-      height: 588
-    }
+    displayPost: new postDetail()
   },
   getters: {
   },

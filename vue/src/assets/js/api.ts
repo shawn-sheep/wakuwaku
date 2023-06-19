@@ -3,30 +3,78 @@ import store from "@/store";
 import API from "@/plugins/axios"
 
 export class tag {
-    id : string;
+    tag_id : string;
     name : string;
     count : number;
     type: string;
     constructor() {
-        this.id = ''
+        this.tag_id = ''
         this.name = ''
         this.count = 0
         this.type = ''
     }
 }
 
+export class postPreview {
+    account_id: string;
+    content: string;
+    date: string;
+    img: image;
+    post_id: string;
+    score: number;
+    source: string;
+    title: string;
+    constructor() {
+        this.account_id = ''
+        this.content = ''
+        this.date = ''
+        this.img = new image()
+        this.post_id = ''
+        this.score = 0
+        this.source = ''
+        this.title = ''
+    }
+}
+
+export class postDetail {
+    account_id: string;
+    content: string;
+    date: string;
+    imgs: image[];
+    post_id: string;
+    score: number;
+    source: string;
+    title: string;
+    tags: tag[]
+    constructor() {
+        this.account_id = ''
+        this.content = ''
+        this.date = ''
+        this.imgs = [new image()]
+        this.post_id = ''
+        this.score = 0
+        this.source = ''
+        this.title = ''
+        this.tags = []
+    }
+}
+
 export class image {
-    id : string;
-    src : string;
-    description : string;
-    tags: tag[];
+    image_id : string;
+    name : string;
+    original_url : string;
+    post_id: string;
+    preview_url: string;
+    sample_url: string
     width: number;
     height: number;
     constructor() {
-        this.id = ''
-        this.src = ''
-        this.description = ''
-        this.tags = []
+        this.image_id = ''
+        this.name = ''
+        this.original_url = ''
+        this.post_id = ''
+        this.preview_url = ''
+        this.sample_url = ''
         this.width = 512
         this.height = 512
     }
@@ -70,8 +118,8 @@ export const sleep = (time : number) => {
     })
 }
 
-export const showImage = async (pre_img : image) => {
-    store.state.displayImage = await getImageByID(pre_img.id)
+export const showPost = async (post : postPreview) => {
+    store.state.displayPost = await getImageByID(post.post_id)
     store.state.isDisplayImage = true
 }
 
@@ -117,44 +165,53 @@ export const getImageByID = async (id : string) => {
     //     }
     // }
 
-    const img = new image()
+    const post = new postDetail()
     await API.get('/posts/' + id).then((res) => {
         console.log(res)
         if (res.status === 200) {
-            const res_img = res.data.images[0]
-            img.id = res.data.post_id
-            img.src = res_img.sample_url
-            img.description = res.data.title
-            img.tags = res.data.tags
-            img.width = res_img.width
-            img.height = res_img.height
+            const res_data = res.data
+            post.account_id = res_data.account_id
+            post.content = res_data.content
+            post.date = res_data.created_at
+            post.post_id = res_data.post_id
+            post.score = res_data.score
+            post.source = res_data.source
+            post.title = res_data.title
+            post.imgs = res_data.images
+            post.tags = res_data.tags
         }
     }).catch((res) => {
         console.log("get image error")
     })
-    return img
+    return post
 }
 
-export const getImages = async (params : any) => {
-    const imgs : image[] = []
+export const getPostPreviews = async (params : any) => {
+    const postPreviews : postPreview[] = []
     await API.get('/posts', { params }).then((res) => {
         console.log(res)
         if (res.status === 200) {
             for (const i in res.data) {
                 const res_data = res.data[i]
-                const img = new image()
-                img.id = res_data.post_id
-                img.src = res_data.preview_url
-                img.description = res_data.title
-                img.width = res_data.width
-                img.height = res_data.height
-                imgs.push(img)
+                const post = new postPreview()
+                post.account_id = res_data.account_id
+                post.content = res_data.content
+                post.date = res_data.created_at
+                post.img.preview_url = res_data.preview_url
+                post.img.width = res_data.width
+                post.img.height = res_data.height
+                post.post_id = res_data.post_id
+                post.score = res_data.score
+                post.source = res_data.source
+                post.title = res_data.title
+                postPreviews.push(post)
             }
         }
     }).catch((res) => {
         console.log("get image error")
     })
-    return imgs
+    console.log(postPreviews)
+    return postPreviews
 }
 
 export const autoComplete = async (q: string) => {
@@ -165,7 +222,7 @@ export const autoComplete = async (q: string) => {
             for (const i in res.data.tags) {
                 const res_data = res.data.tags[i]
                 const tg = new tag()
-                tg.id = res_data.tag_id
+                tg.tag_id = res_data.tag_id
                 tg.name = res_data.name
                 tg.count = res_data.count
                 tg.type = res_data.type
