@@ -5,7 +5,7 @@ import LoginView from '../views/LoginView.vue'
 import MainView from '../views/MainView.vue'
 import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
-import ImageView from '../views/ImageView.vue'
+import PostView from '../views/PostView.vue'
 import SearchView from '../views/SearchView.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -52,10 +52,10 @@ const routes: Array<RouteRecordRaw> = [
         component: HomeView
       },
       {
-        path: '/image/:id',
-        name: 'image',
+        path: '/post/:id',
+        name: 'post',
         props: true,
-        component: ImageView
+        component: PostView
       },
       {
         path: '/search',
