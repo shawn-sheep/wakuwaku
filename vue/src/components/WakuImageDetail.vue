@@ -1,12 +1,6 @@
 <template>
   <div ref="contentRef" class="image-detail-div" :style="{display: store.state.isDisplayImage?'': 'none'}" @click="handleClick">
-    <div
-        class="image-content-div"
-        :style="{
-          width: info.fitType === 'width' ? '75%' : 'auto',
-          height: info.fitType === 'height' ? '75%' : 'auto'
-        }"
-    >
+    <div class="image-content-div">
       <waku-static-post
           :img="store.state.displayImage"
           :width="info.postWidth"
@@ -29,7 +23,7 @@
 <!--          controls-->
 <!--      ></video>-->
       <div class="description-div">
-        <div style="text-align: left;font-size: 18px;font-weight: 600;">
+        <div class="information-div" style="">
           <waku-link style="height: 30px;line-height: 30px" :route="'/image/' + store.state.displayImage.id">{{ store.state.displayImage.description !== '' ? store.state.displayImage.description : '无题' }}</waku-link>
           <div class="tags-div">
             <waku-tag
@@ -107,6 +101,8 @@ watch(
   z-index: 2;
 }
 .image-content-div {
+  width: 75%;
+  height: 75%;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -125,9 +121,29 @@ watch(
   flex-direction: row;
   justify-content: space-between;
 }
+.information-div {
+  text-align: left;
+  font-size: 18px;
+  font-weight: 600;
+  width: calc(100% - 100px);
+  position: relative;
+}
+.information-div::before {
+  content: '';
+  display: block;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 92%, rgba(255, 255, 255, 1));
+}
 .tags-div {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .like-div {
+  width: 100px;
   display: flex;
   flex-direction: row;
   justify-content: center;
