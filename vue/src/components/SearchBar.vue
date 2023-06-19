@@ -30,7 +30,7 @@ const selectPanel = ref(false)
 <style scoped>
 .search-div {
   width: 100%;
-  height: 30px;
+  height: 34px;
   position: relative;
   background: var(--wakuwaku-searchbar-background-color);
   border-radius: 999px;
@@ -44,12 +44,12 @@ const selectPanel = ref(false)
   background: var(--wakuwaku-searchbar-background-color);
   border-radius: 15px;
   overflow: hidden;
+  transition: border 0.1s;
+  border: 2px solid rgba(0, 0, 0, 0);
 }
 
 /* 判断是否为搜索状态 */
 .search-bar:hover, .search-bar:focus-within {
-  top: -2px;
-  left: -2px;
   border: 2px solid var(--wakuwaku-searchbar-border-color);
 }
 

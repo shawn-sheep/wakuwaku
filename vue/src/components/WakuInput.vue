@@ -1,12 +1,15 @@
 <template>
   <div class="input-div">
-    <div class="label">{{ ip.val!==''?'' : props.label }}</div>
-    <input v-model="ip.val" :type="type" @blur='fnBlur' @input='fnInput'>
+    <slot name="before"></slot>
+    <div style="position: relative;flex-grow: 1">
+      <div class="label">{{ ip.val!==''?'' : props.label }}</div>
+      <input v-model="ip.val" :type="type" @blur='fnBlur' @input='fnInput'>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, useSlots } from 'vue'
 
 // eslint-disable-next-line no-undef
 const props = defineProps({
@@ -49,20 +52,23 @@ watch(
 <style scoped>
 .input-div {
   position: relative;
+  display: flex;
+  flex-direction: row;
   height: 40px;
   /*border: 2px solid var(--wakuwaku-color-dark);*/
   border-radius: var(--wakuwaku-medium-radius);
   background-color: var(--wakuwaku-color-light);
   margin-top: 8px;
   margin-bottom: 8px;
+  padding: 0 18px;
 }
 input {
   position: relative;
-  width: calc(100% - 36px);
+  width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0);
   border: none;
-  margin: 0 18px;
+  /*margin: 0 18px;*/
   color: var(--wakuwaku-font-color-dark);
   font-family: inherit;
   font-size: 14px;
@@ -76,7 +82,7 @@ input:focus-visible {
 .label {
   position: absolute;
   top: 50%;
-  padding-left: 20px;
+  padding-left: 3px;
   transform: translate(0, -50%);
   color: var(--wakuwaku-font-color);
   text-align: left;

@@ -1,5 +1,5 @@
 <template>
-  <div class="waku-link" @click="goto(route, true)">
+  <div class="waku-link" @click="onClick">
     <slot name="default"></slot>
   </div>
 </template>
@@ -11,6 +11,11 @@ import { goto } from '@/assets/js/api'
 const props = defineProps({
   route: String
 })
+
+const onClick = () => {
+  if(props.route != null)
+    goto(props.route, true)
+}
 </script>
 
 <style scoped>

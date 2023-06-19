@@ -1,7 +1,7 @@
 <template>
   <div style="background-color: rgba(0, 0, 0, 0.04); padding: 20px">
     <div style="border-radius: 10px;overflow: hidden;background-color: #FFFFFF">
-      <waku-static-post :img="info.img" style="border-radius: 0"></waku-static-post>
+      <waku-static-post :img="info.img" class="post-div" @click="goto(info.img.src, true, false)"></waku-static-post>
       <div class="information-div">
         <div class="like-div">
           <div style="display: inline-block">
@@ -27,10 +27,18 @@
         <div style="margin: 20px 0; height: 2px;background-color: #AAAAAA"></div>
         <div style="display: flex;flex-direction: row;margin: 20px 0;gap: 20px">
           <waku-avatar :src="store.state.user.avatar" :size="40" style="margin: auto 0"></waku-avatar>
-          <waku-input style="background-color: rgba(0, 0, 0, 0.02);width: 100%" label="发表评论"></waku-input>
+          <waku-input style="background-color: rgba(0, 0, 0, 0.02);width: 100%" label="发表评论">
+            <template v-slot:before>
+              <waku-deletable-item v-if="info.currentReply !== undefined" @delete="onDelete" style="height: 100%;font-size: 12px">
+                {{ '回复给:' + info.currentReply.username }}
+              </waku-deletable-item>
+              <div v-if="info.currentReply !== undefined" style="height: 60%;width: 1px;margin: auto 5px;background-color: rgba(0 ,0 ,0 ,0.2);"></div>
+            </template>
+          </waku-input>
           <waku-button style="width: 100px;text-align: center" :enable="true">发送</waku-button>
         </div>
-        <div class="commits-div">
+        <div class="comments-div">
+          <waku-comment v-for="comment in info.comments" :key="comment" :comment="comment" @reply="onReply"></waku-comment>
         </div>
       </div>
     </div>
@@ -39,21 +47,27 @@
 
 <script setup lang="ts">
 import {defineProps, onMounted, reactive, ref, watch} from 'vue'
-import {getImageByID, image} from "@/assets/js/api";
+import {getImageByID, image, goto, comment} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
 import WakuInput from "@/components/WakuInput.vue";
 import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store"
+import WakuComment from "@/components/WakuComment.vue";
+import WakuDeletableItem from "@/components/WakuDeletableItem.vue";
 const props = defineProps<{
   id : string
 }>()
 
 const info = reactive<{
   img : image
+  comments : comment[]
+  currentReply ?: comment
 }>({
-  img : new image()
+  img : new image(),
+  comments: [],
+  currentReply : undefined
 })
 
 onMounted(() => {
@@ -66,6 +80,7 @@ onMounted(() => {
         immediate: true
       }
   )
+  info.comments = getComments()
 })
 
 const updateImage = (id : string) => {
@@ -74,6 +89,26 @@ const updateImage = (id : string) => {
     console.log(info.img)
   })
 }
+
+const getComments = () => {
+  let out = []
+  let fa = new comment()
+  let fa2 = new comment()
+  let child = new comment()
+  fa.reply.push(child)
+  out.push(fa)
+  out.push(fa2)
+  return out
+}
+
+const onReply = (comment : comment) => {
+  console.log(comment)
+  info.currentReply = comment
+}
+
+const onDelete = () => {
+  info.currentReply = undefined
+}
 </script>
 
 <style scoped>
@@ -81,6 +116,10 @@ const updateImage = (id : string) => {
   width: 700px;
   margin: auto;
   text-align: left;
+}
+.post-div {
+  border-radius: 0;
+  cursor: zoom-in;
 }
 .like-div {
   height: 40px;
@@ -101,6 +140,9 @@ const updateImage = (id : string) => {
 .rect-div {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
+  margin: 20px 0;
+}
+.comments-div {
   margin: 20px 0;
 }
 svg {

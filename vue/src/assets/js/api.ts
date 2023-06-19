@@ -32,12 +32,32 @@ export class image {
     }
 }
 
-export const goto = (url : string, newTab=false) => {
+export class comment {
+    id: string;
+    avatar: string;
+    username: string;
+    content: string;
+    reply: comment[]
+    constructor() {
+        this.id = ''
+        this.avatar = require('@/assets/img/user_avatar.jpg')
+        this.username = 'Lierick'
+        this.content = 'default comment\ndefault comment\ndefault comment'
+        this.reply = []
+    }
+}
+
+export const goto = (url : string, newTab=false, useRouter=true) => {
     if(newTab) {
-        const href = router.resolve({
-            path: url
-        })
-        window.open(href.href, '_blank')
+        if(useRouter) {
+            const href = router.resolve({
+                path: url
+            })
+            window.open(href.href, '_blank')
+        }
+        else {
+            window.open(url, '_blank')
+        }
     } else {
         if (url != null) router.push(url)
     }
