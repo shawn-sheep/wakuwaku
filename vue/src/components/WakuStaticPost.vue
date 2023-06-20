@@ -27,11 +27,14 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import store from "@/store";
 
 // eslint-disable-next-line no-undef
-const props = defineProps<{
-  img : image,
-  width: number,
-  height: number
-}>()
+const props = withDefaults(defineProps<{
+  img : image
+  width ?: number
+  height ?: number
+}>(), {
+  width : 512,
+  height : 512
+})
 
 const img = ref<image>()
 const containerRef = ref<Element>()

@@ -44,7 +44,7 @@ class Post(db.Model):
     created_at = db.Column(
         db.DateTime, server_default=func.current_timestamp(), nullable=False
     )
-    rating = db.Column(db.String(1), nullable=False, default="s")
+    rating = db.Column(db.String(1), nullable=False, default="g")
 
     account = relationship("Account", backref=db.backref("posts", lazy=True))
 

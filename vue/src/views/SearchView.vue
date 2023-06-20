@@ -62,18 +62,10 @@ const onGetImageList  = async (i : any) => {
 </script>
 
 <style scoped>
-.home-div {
+.search-div {
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-}
-
-span {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--wakuwaku-header-font-color);
-  padding-left: 20px;
-  padding-top: 0px;
 }
 
 select:focus {

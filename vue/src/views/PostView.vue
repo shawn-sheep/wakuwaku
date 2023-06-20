@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="title-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
-        <div class="content-div">{{ info.post.content }}</div>
+        <div class="content-div" v-html="info.post.content"></div>
         <div class="tag-div">
           <waku-tag v-for="tag in info.post.tags" :key="tag.tag_id" :tag="tag"></waku-tag>
         </div>
@@ -57,8 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps, onMounted, reactive, ref, watch} from 'vue'
-import {getImageByID, image, goto, comment, postDetail, getComments} from "@/assets/js/api";
+import { onMounted, reactive, ref, watch} from 'vue'
+import {getImageByID, goto, comment, postDetail, getComments} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
@@ -68,6 +68,7 @@ import store from "@/store"
 import WakuComment from "@/components/WakuComment.vue";
 import WakuDeletableItem from "@/components/WakuDeletableItem.vue";
 import WakuLink from "@/components/WakuLink.vue";
+// eslint-disable-next-line no-undef
 const props = defineProps<{
   id : string
 }>()
@@ -101,6 +102,26 @@ const updateImage = (id : string) => {
     console.log(info.post)
   })
 }
+
+const updateContent = () => {
+  // <http://www.baidu.com> -> <a href="http://www.baidu.com">http://www.baidu.com</a> 或https
+  const reg2 = /<http(s?):\/\/(.*?)>/g
+  info.post.content = info.post.content.replace(reg2, '<a class="content-link" style="color: #0077FF; text-decoration: none" href="http$1://$2">http$1://$2</a>')
+  // 把info.post.content中形如 "string":[link] 的字符串替换为 <a href="link">string</a>
+  // "string":[link] -> <a href="link">string</a>
+  const reg1 = /"(.*?)":\[(.*?)\]/g
+  info.post.content = info.post.content.replace(reg1, '<a class="content-link" style="color: #0077FF; text-decoration: none" href="$2">$1</a>')
+}
+
+watch(
+    () => info.post.content,
+    (val, oldVal) => {
+      updateContent()
+    },
+    {
+      immediate: true
+    }
+)
 
 // const getComments = () => {
 //   let out = []
@@ -146,6 +167,7 @@ const onDelete = () => {
 .content-div {
   white-space: pre-wrap;
 }
+
 .tag-div {
   font-weight: 500;
   font-size: 16px;
