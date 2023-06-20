@@ -35,7 +35,12 @@
   --wakuwaku-searchbar-hover-background-color: #fcecea;
   --wakuwaku-scrollbar-color: #FFE4E1;
   --wakuwaku-scrollbar-thumb-color: #eab3ad;
-  --wakuwaku-user-bar-height: 400px
+  --wakuwaku-user-bar-height: 400px;
+  --wakuwaku-artist-tag-color: #dd0000;
+  --wakuwaku-copy-right-tag-color: #a800aa;
+  --wakuwaku-character-tag-color: #00ab2c;
+  --wakuwaku-general-tag-color: #0075f8;
+  --wakuwaku-meta-tag-color: #fd9200;
 }
 
 nav {

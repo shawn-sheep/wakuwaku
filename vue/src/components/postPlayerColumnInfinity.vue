@@ -19,8 +19,8 @@
         ></waku-post>
       </div>
     </div>
-    <div class="more" ref="moreRef">
-    </div>
+    <div class="more" ref="moreRef" v-if="!noMore"></div>
+    <div class="no-more" v-if="noMore">{{ `共 ${info.postList.length} 张` }}</div>
   </div>
 </template>
 
@@ -64,6 +64,7 @@ const moreRef = ref<Element>()
 const columnsRef = ref<Element[]>([])
 
 let intervalHook : number
+const noMore = ref<boolean>(false)
 
 onMounted(() => {
   init()
@@ -142,6 +143,11 @@ const insert = async (post : postPreview) => {
 
 const more = async () => {
   const {newInfo, newPostList} = await props.getPostList(info.currentI)
+  if (newPostList.length == 0) {
+    noMore.value = true
+    clearInterval(intervalHook)
+    return
+  }
   for (let item in newPostList) {
     info.postList.push(newPostList[item])
     await insert(newPostList[item])
@@ -161,5 +167,14 @@ const more = async () => {
 }
 .more {
   height: 50px;
+}
+
+.no-more {
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+  border-top: 2px solid var(--wakuwaku-header-background-color);
+  color: var(--wakuwaku-font-color-dark);
 }
 </style>

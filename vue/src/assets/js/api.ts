@@ -19,12 +19,12 @@ export class tag {
     tag_id : string;
     name : string;
     count : number;
-    type: string;
+    type: number;
     constructor() {
         this.tag_id = ''
         this.name = ''
         this.count = 0
-        this.type = ''
+        this.type = 0
     }
 }
 
@@ -234,6 +234,10 @@ export const getImageByID = async (id : string) => {
             post.title = res_data.title
             post.imgs = res_data.images
             post.tags = res_data.tags
+            // 对tags按照count排序
+            post.tags.sort((a : any, b : any) => {
+                return b.count - a.count
+            })
         }
     }).catch((res) => {
         console.log("get image error")

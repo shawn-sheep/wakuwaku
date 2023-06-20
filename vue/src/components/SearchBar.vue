@@ -29,8 +29,7 @@
 
 import { ref } from 'vue'
 import { tag, autoComplete, goto } from '@/assets/js/api';
-import { useRoute } from "vue-router";
-import { onMounted } from 'vue';
+import { useRouter } from "vue-router";
 
 const isFocus = ref(false)
 const selectPanel = ref(false)
@@ -40,13 +39,16 @@ const input = ref<HTMLInputElement>()
 
 const autoCompletes = ref<tag[]>([])
 
-// 根据路由中tags参数，初始化搜索框
-onMounted(() => {
-  const route = useRoute()
-  const tags = route.query.tags
+// 根据路由中tags参数，修改搜索框
+useRouter().afterEach((to) => {
+  const tags = to.query.tags
   if (tags) {
     input.value!.value = tags as string
-    onInput({target: input.value!})
+    // onInput({target: input.value!})
+  } else {
+    if (input.value!.value) {
+      input.value!.value = ''
+    }
   }
 })
 
@@ -64,6 +66,7 @@ const onFocusOut = (e: any) => {
 
 const onInput = (e: any) => {
   console.log('onInput', e.target.value)
+  isFocus.value = true
   // 补全最后一词
   const value = e.target.value
   const index = value.lastIndexOf(' ')
@@ -98,8 +101,9 @@ const onTab = (e: any) => {
 const onEnter = (e: any) => {
   if (selectedIndex.value >= 0) {
     onSelected(autoCompletes.value[selectedIndex.value])
-    goto('/search?tags=' + input.value!.value)
   }
+  // 转义+号等特殊字符
+  goto('/search?tags=' + encodeURIComponent(input.value!.value))
 }
 
 const onSelected = (item: tag) => {

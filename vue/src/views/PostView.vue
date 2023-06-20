@@ -21,8 +21,14 @@
         </div>
         <div class="title-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
         <div class="content-div" v-html="info.post.content"></div>
-        <div class="tag-div">
-          <waku-tag v-for="tag in info.post.tags" :key="tag.tag_id" :tag="tag"></waku-tag>
+
+        <div class="tags-div">
+          <div class="tag-div" v-for="item in type_names" :key="item.name">
+            <div class="tag-type-div" v-if="info.tags[item.type]">{{ item.name }}</div>
+            <div class="tags">
+              <waku-tag v-for="tag in info.tags[item.type]" :key="tag.tag_id" :tag="tag"></waku-tag>
+            </div>
+          </div>
         </div>
         <waku-link class="source-div" @click="goto(info.post.source, true, false)">{{ 'source:' + info.post.source }}</waku-link>
         <div style="display: flex;flex-direction: row;gap: 20px">
@@ -57,8 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch} from 'vue'
-import {getImageByID, goto, comment, postDetail, getComments} from "@/assets/js/api";
+import { onMounted, reactive, watch} from 'vue'
+import {getImageByID, goto, comment, postDetail, tag, getComments} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
@@ -75,30 +81,40 @@ const props = defineProps<{
 
 const info = reactive<{
   post : postDetail
+  tags : tag[][]
   comments : comment[]
   currentReply ?: comment
 }>({
   post : new postDetail(),
+  tags : [],
   comments: [],
   currentReply : undefined
 })
 
-onMounted(async () => {
-  watch(
-      () => props.id,
-      (val, oldVal) => {
-        updateImage(val)
-      },
-      {
-        immediate: true
-      }
-  )
-  info.comments = await getComments(props.id, 1)
-})
+const type_names = [
+  { type: 1, name: '画师' },
+  { type: 3, name: '作品' },
+  { type: 4, name: '角色' },
+  { type: 0, name: '标签' },
+  { type: 5, name: '信息' }
+]
+
+const getTags = () => {
+  info.tags = []
+  // 按照tag的type分类
+  for (const tag of info.post.tags) {
+    if (info.tags[tag.type] === undefined) {
+      info.tags[tag.type] = []
+    }
+    info.tags[tag.type].push(tag)
+  }
+}
 
 const updateImage = (id : string) => {
   getImageByID(id).then((res) => {
     info.post = res
+    updateContent()
+    getTags()
     console.log(info.post)
   })
 }
@@ -114,13 +130,14 @@ const updateContent = () => {
 }
 
 watch(
-    () => info.post.content,
-    (val, oldVal) => {
-      updateContent()
-    },
-    {
-      immediate: true
-    }
+  () => props.id,
+  async (val, oldVal) => {
+    updateImage(val)
+    info.comments = await getComments(props.id, 1)
+  },
+  {
+    immediate: true
+  }
 )
 
 // const getComments = () => {
@@ -166,13 +183,19 @@ const onDelete = () => {
 }
 .content-div {
   white-space: pre-wrap;
-}
-
-.tag-div {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 22px;
   margin: 20px 0;
+}
+.tags-div {
+  display: inline-block;
+}
+.tag-div {
+  /* width: 200px; */
+  display: inline-block;
+  font-weight: 600;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 1.0);
+  line-height: 22px;
+  margin: 10px 0;
 }
 .rect-div,.date-div,.score-div {
   color: rgba(0, 0, 0, 0.4);
