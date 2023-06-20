@@ -169,6 +169,7 @@ specs_dict["definitions"]["PostPreview"]["properties"] = {**specs_dict["definiti
 specs_dict["definitions"]["PostDetail"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostDetail"]["properties"]}
 
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import func, and_, text
 
 @bp.route("/posts", methods=["GET"])
 @swag_from(specs_dict)
@@ -288,8 +289,8 @@ def get_posts():
     order_dict = {
         "new": Post.created_at.desc(),
         "old": Post.created_at.asc(),
-        "score": Post.score.desc(),
-        "rank": Post.score.desc(),
+        "score": text("score desc, post.post_id desc"),
+        "rank": text("score desc, post.post_id desc"),
     }
 
     if order == "rank":
@@ -311,7 +312,6 @@ def get_posts():
         "original": Image.original_url,
     }
 
-    from sqlalchemy import func, subquery, and_
     subquery = db.session.query(Image.post_id, func.min(Image.image_id).label('min_image_id'), func.count(Image.image_id).label('image_count'))\
         .filter(Image.post_id.in_(post_query.subquery()))\
         .group_by(Image.post_id).subquery()
