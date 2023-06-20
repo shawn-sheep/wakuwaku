@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import WakuAvatar from "@/components/WakuAvatar";
+import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store";
 import {ref} from "vue";
 import UserBar from "@/components/UserBar.vue";
