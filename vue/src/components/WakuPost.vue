@@ -23,8 +23,8 @@
           @load = "onLoad"
           v-lazyload="props.post.img.preview_url"
           :style="{
-             width: props.fixTypes === 'width' ? '100%' : (isLoaded ? '' : props.size + 'px'),
-             height: props.fixTypes === 'height' ? '100%' : (isLoaded ? '' : props.size + 'px'),
+             width: props.fixTypes === 'width' ? '100%' : (isLoaded ? '' : props.size * props.post.img.width / props.post.img.height + 'px'),
+             height: props.fixTypes === 'height' ? '100%' : (isLoaded ? '' : props.size * props.post.img.height / props.post.img.width + 'px')
           }"
       >
     </div>
