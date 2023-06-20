@@ -40,22 +40,21 @@
 </template>
 
 <script setup lang="ts">
-// eslint-disable-next-line no-undef
-import {onMounted, onUnmounted, reactive, ref, withDefaults} from "vue";
+import { watch } from "vue";
+import {onMounted, onUnmounted, reactive, ref} from "vue";
 
-const props = withDefaults(
-    // eslint-disable-next-line no-undef
-    defineProps<{
-      scrollDirection?: string
-    }>(),{
-      scrollDirection: 'row'
-    }
+// eslint-disable-next-line no-undef
+const props = withDefaults(defineProps<{
+    scrollDirection?: string
+  }>(),{
+    scrollDirection: 'row'
+  }
 )
 
-const contentRef = ref(null)
-const scrollRef = ref(null)
-const barVerticalRef = ref(null)
-const barHorizontalRef = ref(null)
+const contentRef = ref<HTMLDivElement>()
+const scrollRef = ref<HTMLDivElement>()
+const barVerticalRef = ref<HTMLDivElement>()
+const barHorizontalRef = ref<HTMLDivElement>()
 
 const info = reactive({
   barWidth: 0,
@@ -98,6 +97,10 @@ const updateScroll = () => {
       info.leftPercentage = 0
   } else if (props.scrollDirection === 'column') {
     info.barHeight = barVerticalRef.value.clientHeight
+    // 修正高度变化时的滚动条位置
+    if (info.contentHeight != contentRef.value.clientHeight) {
+      info.topPercentage = info.topPercentage * info.contentHeight / contentRef.value.clientHeight
+    }
     info.contentHeight = contentRef.value.clientHeight
     if (scrollRef.value.clientHeight > contentRef.value.clientHeight)
       info.heightPercentage = 100
