@@ -25,10 +25,11 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, withDefaults, defineProps, onMounted, ref, onUnmounted} from "vue";
+import {reactive, onMounted, ref, onUnmounted} from "vue";
 import {postPreview} from "@/assets/js/api";
 import WakuPost from "@/components/WakuPost.vue";
 
+// eslint-disable-next-line no-undef
 const props = withDefaults(defineProps<{
   columnMinWidth: number,
   // getImageList: (info : any) => {newInfo : any, newImageList : image[]}
@@ -65,6 +66,7 @@ const columnsRef = ref<Element[]>([])
 let intervalHook : number
 
 onMounted(() => {
+  init()
   intervalHook = setInterval(init, 300)
   const observer = new IntersectionObserver(([{ isIntersecting }]) => {
     if (isIntersecting) {
@@ -80,7 +82,7 @@ onMounted(() => {
   }, {
     threshold: 0.5
   })
-  observer.observe(moreRef.value) //观察指令绑定的dom
+  observer.observe(moreRef.value!) //观察指令绑定的dom
 })
 
 onUnmounted(() => {
@@ -99,7 +101,7 @@ const resize = async () => {
 }
 
 const init = () => {
-  let temp = Math.floor(containerRef.value?.clientWidth / props.columnMinWidth);
+  let temp = Math.floor(containerRef.value!.clientWidth / props.columnMinWidth);
   if (temp < 1) temp = 1
   if (temp > 6) temp = 6
   if(temp != info.columnCount) {
@@ -108,7 +110,19 @@ const init = () => {
       resize()
     }
   }
-  info.columnWidth = containerRef.value?.clientWidth / info.columnCount
+  info.columnWidth = containerRef.value!.clientWidth / info.columnCount
+
+  // 检查moreRef是否在可视区域内
+  if (moreRef.value!.getBoundingClientRect().top < window.innerHeight) {
+    if (!info.updating) {
+      console.log('init updating')
+      info.updating = true
+      more().then(() => {
+        info.updating = false
+      })
+      console.log('init async ok')
+    }
+  }
 }
 
 const insert = async (post : postPreview) => {

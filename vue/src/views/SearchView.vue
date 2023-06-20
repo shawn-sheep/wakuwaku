@@ -36,7 +36,7 @@ const order = ref(useRoute().query.order ? useRoute().query.order : "new")
 // 监听路由变化
 import { useRouter } from "vue-router";
 const router = useRouter();
-router.afterEach((to, _from) => {
+router.afterEach((to) => {
   tags.value = to.query.tags
   show.value = false
   setTimeout(() => {
@@ -52,7 +52,7 @@ const onUpdateOrderOptions = (i : number[]) => {
   router.push({query: {tags: tags.value, order: order.value}})
 }
 
-const onGetImageList  = async (i : any) => {
+const onGetImageList  = async (i : { offset : number, per_page : number } ) => {
   // return { newInfo: i, newImageList : store.state.recommend}
   console.log("onGetImageList", i)
   let res = await getPostPreviews(i)
