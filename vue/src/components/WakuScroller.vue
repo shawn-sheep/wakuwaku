@@ -11,6 +11,9 @@
               width: props.scrollDirection === 'row' ? 'fit-content' : '100%'
             }"
             @wheel="onWheel"
+            @touchmove="onTouchMove"
+            @touchstart="onTouchStart"
+            @touchend="onTouchEnd"
         >
           <slot name="default" ></slot>
         </div>
@@ -158,6 +161,39 @@ const onWheel = (e : any) => {
       info.topPercentage = 0
     info.moveClientY = e.clientY
   }
+}
+
+const lastTouchY = ref(-1)
+
+const onTouchStart = (e : any) => {
+  // 记录初始位置
+  lastTouchY.value = e.touches[0].clientY
+  console.log("onTouchStart", lastTouchY.value)
+}
+
+const onTouchEnd = (e : any) => {
+  // 记录初始位置
+  lastTouchY.value = -1
+  console.log("onTouchEnd", lastTouchY.value)
+}
+
+const onTouchMove = (e : any) => {
+  e.preventDefault()
+  console.log("onTouchMove", lastTouchY.value)
+  // 移动距离
+  const moveY = lastTouchY.value - e.touches[0].clientY
+  // 移动距离百分比
+  const movePercentage = moveY / info.contentHeight * 100
+  // 移动后的位置百分比
+  const topPercentage = info.topPercentage + movePercentage
+  if (topPercentage + info.heightPercentage > 100)
+    info.topPercentage = 100 - info.heightPercentage
+  else if (topPercentage < 0)
+    info.topPercentage = 0
+  else
+    info.topPercentage = topPercentage
+  // 记录初始位置
+  lastTouchY.value = e.touches[0].clientY
 }
 </script>
 
