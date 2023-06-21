@@ -6,7 +6,7 @@
     <span class="span-name" :style="{'color': 'var(' + type2color[props.tag.type] + ')'}">
       {{ props.tag.name + ' ' }}
     </span>
-    <span class="span-count">{{ countToString() }}</span>
+    <span class="span-count" v-if="!no_count">{{ countToString() }}</span>
   </waku-link>
 </template>
 
@@ -17,6 +17,7 @@ import {tag, goto} from "@/assets/js/api";
 // eslint-disable-next-line no-undef
 const props = defineProps<{
   tag : tag
+  no_count ?: boolean
 }>()
 
 const type2color = [

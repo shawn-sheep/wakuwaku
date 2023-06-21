@@ -1,40 +1,57 @@
 <template>
   <div class="input-div">
     <slot name="before"></slot>
-    <div style="position: relative;flex-grow: 1">
+    <div style="position: relative;">
       <div class="label">{{ ip.val!==''?'' : props.label }}</div>
       <input v-model="ip.val" :type="type" @blur='fnBlur' @input='fnInput'>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, watch, useSlots } from 'vue'
 
 // eslint-disable-next-line no-undef
-const props = defineProps({
-  modelValue: String,
-  label: String,
-  type: String
+const props = withDefaults(defineProps<{
+  modelValue: string
+  label: string
+  type: string
+}>(), {
+  modelValue: '',
+  label: '',
+  type: 'text'
 })
 // eslint-disable-next-line no-undef
 const emits = defineEmits(['update:modelValue', 'blur', 'input'])
+
+emits('update:modelValue', props.modelValue)
+
+// eslint-disable-next-line no-undef
+defineExpose({
+  focus: () => {
+    const input = document.querySelector('input')
+    if (input) {
+      input.focus()
+    }
+  }
+})
 
 const fnBlur = () => {
   emits('blur')
 }
 
 const fnInput = () => {
-  emits('input')
+  emits('input', ip.val)
 }
 
 const ip = reactive({
-  val: ''
+  val: props.modelValue
 })
 
 watch(
     () => props.modelValue,
     (val, preVal) => {
+      console.log('modelValue changed')
       ip.val = val
     },
     {}
