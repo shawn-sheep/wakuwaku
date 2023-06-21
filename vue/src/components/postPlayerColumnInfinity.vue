@@ -131,13 +131,11 @@ const insert = async (post : postPreview) => {
   let minHeight = 999999
   let c
   for (let column in columnsRef.value) {
-    console.log()
     if (minHeight > columnsRef.value[column].clientHeight) {
       minHeight = columnsRef.value[column].clientHeight
       c = column
     }
   }
-  console.log(c)
   info.postListColumn[Number(c)].push(post)
   // sleep(1000)
 }
