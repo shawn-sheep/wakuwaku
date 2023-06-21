@@ -12,6 +12,7 @@
     <WakuButtonGroup :options="['最新发布', '最旧发布', '分数最高']"
       :type="'single'" :selected-options="[order ? orderParams.indexOf(order as string) : 0]"
       @update:selected-options="onUpdateOrderOptions"
+      style="margin-bottom: 20px;"
     ></WakuButtonGroup>
     <post-player-column-infinity v-if="show"
       :get-post-list="onGetImageList"

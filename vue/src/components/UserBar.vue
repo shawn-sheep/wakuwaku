@@ -1,20 +1,22 @@
 <template>
-  <transition name="pull-down">
-    <div class="user-bar-div" v-if="props.expand">
-      <div style="height: 70px;background-color: var(--wakuwaku-color)"></div>
-      <div class="user-bar-item" style="position: relative;height: 20px">
-        <waku-avatar style="position: absolute; bottom: 0" :size="80" :src="store.state.user.avatar_url"></waku-avatar>
+  <div>
+    <transition name="pull-down">
+      <div class="user-bar-div" v-if="props.expand">
+        <div style="height: 70px;background-color: var(--wakuwaku-color)"></div>
+        <div class="user-bar-item" style="position: relative;height: 20px">
+          <waku-avatar style="position: absolute; bottom: 0" :size="80" :src="store.state.user.avatar_url"></waku-avatar>
+        </div>
+        <div class="user-bar-item" style="font-size: 18px;font-weight: 600;">{{ store.state.user.username }}</div>
+        <div class="user-bar-item" style="font-size: 12px">{{ store.state.user.email }}</div>
+        <div style="height: 20px"></div>
+        <div class="user-bar-item2">个人信息</div>
+        <div class="user-bar-item2">我的收藏</div>
+        <div class="user-bar-item2">浏览记录</div>
+        <div style="height: 60px"></div>
+        <div class="user-bar-item2" @click="logout()">登出</div>
       </div>
-      <div class="user-bar-item" style="font-size: 18px;font-weight: 600;">{{ store.state.user.username }}</div>
-      <div class="user-bar-item" style="font-size: 12px">{{ store.state.user.email }}</div>
-      <div style="height: 20px"></div>
-      <div class="user-bar-item2">个人信息</div>
-      <div class="user-bar-item2">我的收藏</div>
-      <div class="user-bar-item2">浏览记录</div>
-      <div style="height: 60px"></div>
-      <div class="user-bar-item2" @click="logout()">登出</div>
-    </div>
-  </transition>
+    </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -26,6 +28,13 @@ import {logout} from "@/assets/js/api";
 const props = defineProps<{
   expand : boolean
 }>();
+
+// eslint-disable-next-line no-undef
+// const emits = defineEmits(['fold'])
+//
+// const onClickOutside = () => {
+//   emits('fold')
+// }
 </script>
 
 <style scoped>

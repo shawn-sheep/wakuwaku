@@ -1,13 +1,13 @@
 <template>
   <div style="position: relative">
-    <div class="headbar-avatar-div" @click="isExpand = !isExpand">
+    <div ref="headerAvatarRef" class="headbar-avatar-div" @click="isExpand = !isExpand">
       <!--    <div style="font-size: 18px; font-weight: 600">{{ store.state.user.username }}</div>-->
       <WakuAvatar :src="store.state.user.avatar_url" :size="38" style="padding-left: 10px;padding-right: 5px"></WakuAvatar>
       <div class="pull-down">
         <svg style="height: 10px;width: 10px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="CurrentColor" fill="CurrentColor"><path d="M0 7.33l2.829-2.83 9.175 9.339 9.167-9.339 2.829 2.83-11.996 12.17z"/></svg>
       </div>
     </div>
-    <user-bar :expand="isExpand"></user-bar>
+    <user-bar :expand="isExpand" v-click-outside:[headerAvatarRef]="onClickOutside"></user-bar>
   </div>
 </template>
 
@@ -17,7 +17,13 @@ import store from "@/store";
 import {ref} from "vue";
 import UserBar from "@/components/UserBar.vue";
 
+const headerAvatarRef = ref<Element>()
+
 const isExpand = ref<boolean>(false)
+
+const onClickOutside = () => {
+  isExpand.value = false
+}
 </script>
 
 <style scoped>
