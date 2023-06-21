@@ -56,7 +56,8 @@ const info = reactive<{
   postList: [],
   postListColumn: [[],[],[],[],[],[]],
   updating: false,
-  currentI: props.currentI
+  // 复制一份，防止修改props
+  currentI: {...props.currentI}
 })
 
 const containerRef = ref<Element>()
