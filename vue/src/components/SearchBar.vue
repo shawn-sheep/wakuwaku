@@ -46,7 +46,8 @@ useRouter().afterEach((to) => {
     input.value!.value = tags as string
     // onInput({target: input.value!})
   } else {
-    if (input.value!.value) {
+    if (input.value) {
+      
       input.value!.value = ''
     }
   }

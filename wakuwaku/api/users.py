@@ -216,6 +216,7 @@ def get_user_info():
     return (
         jsonify(
             {
+                "account_id": current_user.account_id,
                 "username": current_user.username,
                 "email": current_user.email,
                 "created_at": current_user.created_at,
@@ -225,6 +226,67 @@ def get_user_info():
         200,
     )
 
+@bp.route("/user/<int:user_id>", methods=["GET"])
+def get_user_info_by_id(user_id):
+    """Get user information by ID.
+
+    This endpoint allows users to retrieve user information by ID.
+    
+    ---
+    tags:
+        - users
+    parameters:
+      - in: path
+        name: user_id
+        description: The ID of the user to retrieve.
+        required: true
+        schema:
+          type: integer
+    responses:
+      200:
+        description: User information retrieved successfully.
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+              description: The username of the user.
+            email:
+              type: string
+              description: The email address of the user.
+            created_at:
+              type: string
+              format: date-time
+              description: The creation timestamp of the user.
+            avatar_url:
+              type: string
+              description: The avatar URL of the user.
+      404:
+        description: User not found.
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: An error message.
+    """
+    account = Account.query.filter_by(account_id=user_id).first()
+
+    if account is None:
+        return jsonify({"message": "user not found"}), 404
+
+    return (
+        jsonify(
+            {
+                "account_id": account.account_id,
+                "username": account.username,
+                "email": account.email,
+                "created_at": account.created_at,
+                "avatar_url": account.avatar_url,
+            }
+        ),
+        200,
+    )
 
 @bp.route("/user", methods=["PUT"])
 @login_required
