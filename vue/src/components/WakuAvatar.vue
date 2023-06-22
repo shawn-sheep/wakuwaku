@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="{width: props.size+'px', height: props.size+'px'}">
     <div style="border-radius: 999px;overflow: hidden" :style="{width: props.size+'px', height: props.size+'px'}">
       <img :src="props.src" style="width: 100%;">
     </div>

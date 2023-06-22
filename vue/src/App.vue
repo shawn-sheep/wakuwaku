@@ -24,6 +24,7 @@
   --wakuwaku-header-hover-color: #d08882;
   --wakuwaku-color: #FFF0F5;
   --wakuwaku-color-light: #FFF8FB;
+  --wakuwaku-color-lighter: #fffcfd;
   --wakuwaku-color-dark: #FFE1ED;
   --wakuwaku-font-color: #B39EA5;
   --wakuwaku-font-color-dark: #665A5E;

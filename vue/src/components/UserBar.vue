@@ -9,7 +9,7 @@
         <div class="user-bar-item" style="font-size: 18px;font-weight: 600;">{{ store.state.user.username }}</div>
         <div class="user-bar-item" style="font-size: 12px">{{ store.state.user.email }}</div>
         <div style="height: 20px"></div>
-        <div class="user-bar-item2">个人信息</div>
+        <div class="user-bar-item2" @click="goto('/user/1', true)">个人主页</div>
         <div class="user-bar-item2">我的收藏</div>
         <div class="user-bar-item2">浏览记录</div>
         <div style="height: 60px"></div>
@@ -23,7 +23,7 @@
 import {defineProps} from 'vue'
 import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store";
-import {logout} from "@/assets/js/api";
+import {goto,logout} from "@/assets/js/api";
 
 const props = defineProps<{
   expand : boolean

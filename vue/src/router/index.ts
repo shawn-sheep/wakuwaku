@@ -7,6 +7,7 @@ import HomeView from '../views/HomeView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import PostView from '../views/PostView.vue'
 import SearchView from '../views/SearchView.vue'
+import UserView from '../views/UserView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -62,6 +63,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'search',
         props: true,
         component: SearchView
+      },
+      {
+        path: '/user/:id',
+        name: 'user',
+        props: true,
+        component: UserView
       }
     ]
   }
