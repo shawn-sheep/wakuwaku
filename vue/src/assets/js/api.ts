@@ -114,6 +114,19 @@ export class comment {
     }
 }
 
+export const getTags = async (count = 10) => {
+    let out : tag[] = []
+    await API.get('/tags', { params: { count } }).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
+
 export const getComments = async (post_id : string, page : number) => {
     let out : comment[] = []
     await API.get('/comments', { params: { post_id: post_id, page: page, per_page: 10 } }).then((res) => {

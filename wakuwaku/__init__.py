@@ -2,7 +2,7 @@ from flask import Flask
 
 from wakuwaku.api import bp as api_bp
 
-from wakuwaku.extensions import db, login_manager, swagger
+from wakuwaku.extensions import db, login_manager, swagger, cache
 
 def create_app(config_class=None):
     '''Factory Pattern: Create Flask app.'''
@@ -30,6 +30,8 @@ def configure_app(app : Flask):
         'doc_dir': './wakuwaku/docs/'
     }
 
+    app.config['CACHE_TYPE'] = 'simple'
+
     app.config['UPLOAD_FOLDER'] = './wakuwaku/static/upload/'
 
 def configure_blueprints(app : Flask):
@@ -41,3 +43,4 @@ def configure_extensions(app : Flask):
     db.init_app(app)
     login_manager.init_app(app)
     swagger.init_app(app)
+    cache.init_app(app)

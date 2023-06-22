@@ -3,7 +3,7 @@
     <div class="search-bar">
       <div class="search-form" @click="onClick" @focusout="onFocusOut">
         <svg width="24" height="24" stroke="CurrentColor" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 38C30.3888 38 38 30.3888 38 21C38 11.6112 30.3888 4 21 4C11.6112 4 4 11.6112 4 21C4 30.3888 11.6112 38 21 38Z" fill="none" stroke-width="4" stroke-linejoin="round"/><path d="M26.657 14.3431C25.2093 12.8954 23.2093 12 21.0001 12C18.791 12 16.791 12.8954 15.3433 14.3431" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.2216 33.2217L41.7069 41.707" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <input type="text" placeholder="Search"
+        <input type="text" placeholder="Search" v-model="inputValue"
         @input="onInput" ref="input"
         @keydown.down="onKeyDown"
         @keydown.up="onKeyUp"
@@ -29,28 +29,26 @@
 
 import { ref } from 'vue'
 import { tag, autoComplete, goto } from '@/assets/js/api';
-import { useRouter } from "vue-router";
+import { onBeforeRouteUpdate, useRoute } from "vue-router";
 
 const isFocus = ref(false)
 const selectPanel = ref(false)
 const selectedIndex = ref(-1)
 
 const input = ref<HTMLInputElement>()
+const inputValue = ref('')
 
 const autoCompletes = ref<tag[]>([])
 
+inputValue.value = useRoute().query.tags as string || ''
 // 根据路由中tags参数，修改搜索框
-useRouter().afterEach((to) => {
-  const tags = to.query.tags
-  if (tags) {
-    input.value!.value = tags as string
-    // onInput({target: input.value!})
+onBeforeRouteUpdate((to, from, next) => {
+  if (to.query.tags) {
+    inputValue.value = to.query.tags as string
   } else {
-    if (input.value) {
-      
-      input.value!.value = ''
-    }
+    inputValue.value = ''
   }
+  next()
 })
 
 const onClick = (e: any) => {

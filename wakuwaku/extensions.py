@@ -9,3 +9,7 @@ login_manager = LoginManager()
 from flasgger import Swagger
 
 swagger = Swagger()
+
+from flask_caching import Cache
+
+cache = Cache()

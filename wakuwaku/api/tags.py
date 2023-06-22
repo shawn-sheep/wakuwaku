@@ -1,6 +1,6 @@
 from wakuwaku.api import bp
 from wakuwaku.models import Tag
-from wakuwaku.extensions import db
+from wakuwaku.extensions import db, cache
 
 from flask import request, jsonify
 
@@ -52,6 +52,7 @@ def autocomplete():
 from sqlalchemy import text
 
 @bp.route("/tags", methods=["GET"])
+@cache.cached(timeout=3600, query_string=True)
 def get_tags():
     """Get top tags for the homepage.
 
@@ -60,6 +61,12 @@ def get_tags():
     ---
     tags:
         - tags
+    parameters:
+        -   name: count
+            in: query
+            type: integer
+            required: false
+            description: The number of tags per type.
     responses:
         200:
             description: Tags found.
@@ -67,10 +74,22 @@ def get_tags():
                 type: array
                 items:
                     $ref: "#/definitions/Tag"
+        400:
+            description: Invalid parameters
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: invalid parameters
 
 
     """
-    # 按tag.type分组，每组最多返回10个tag
+    try:
+        count = int(request.args.get("count", 10))
+    except (TypeError, ValueError):
+        return jsonify({"message": "invalid parameters"}), 400
     query = text('''
         WITH ranked_tags AS (
             SELECT *,
@@ -79,8 +98,9 @@ def get_tags():
         )
         SELECT tag_id, type, name, count
         FROM ranked_tags
-        WHERE rank <= 10
-    ''')
+        WHERE rank <= :count
+    '''
+    ).params(count=count)
     tags = db.engine.execute(query).fetchall()
     tags = [dict(tag) for tag in tags]
     return jsonify(tags), 200

@@ -136,6 +136,7 @@ const insert = async (post : postPreview) => {
       c = column
     }
   }
+  if (!info.postListColumn[Number(c)]) return;
   info.postListColumn[Number(c)].push(post)
   // sleep(1000)
 }
@@ -148,6 +149,7 @@ const more = async () => {
     return
   }
   for (let item in newPostList) {
+    if (!info.postList) return;
     info.postList.push(newPostList[item])
     await insert(newPostList[item])
   }
