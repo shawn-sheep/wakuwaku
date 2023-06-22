@@ -203,6 +203,19 @@ def get_posts():
           description: Tags of the posts separated by space.
           default: ""
         - in: query
+          name: uploader_id
+          type: integer
+          description: The ID of the uploader.
+        - in: query
+          name: favorited_by
+          type: integer
+          description: The ID of the user who favorited the posts.
+        - in: query
+          name: ratings
+          type: string
+          description: The ratings of the posts separated by space. (g, s, q, e)
+          default: "g"
+        - in: query
           name: order
           type: string
           description: Order of the posts.
@@ -264,6 +277,12 @@ def get_posts():
         if per_page < 1:
             raise ValueError
         tags = request.args.get("tags", "")
+        uploader_id = int(request.args.get("uploader_id", 0))
+        favorited_by = int(request.args.get("favorited_by", 0))
+        ratings = request.args.get("ratings", "g")
+        for rating in ratings.split():
+            if rating not in ["g", "s", "q", "e"]:
+                raise ValueError
         order = request.args.get("order", "new")
         if order not in ["new", "old", "score", "rank"]:
             raise ValueError
@@ -285,6 +304,14 @@ def get_posts():
 
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
+
+    if uploader_id > 0:
+        post_query = post_query.filter(Post.account_id == uploader_id)
+
+    if favorited_by > 0:
+        post_query = post_query.filter(Post.favorites.any(account_id=favorited_by))
+    
+    post_query = post_query.filter(Post.rating.in_(ratings.split()))
 
     order_dict = {
         "new": Post.created_at.desc(),
