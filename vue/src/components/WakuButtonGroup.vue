@@ -13,8 +13,7 @@
 </template>
   
 <script setup lang="ts">
-import { toRef } from 'vue';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -26,16 +25,18 @@ const props = defineProps<{
 // eslint-disable-next-line no-undef
 const emit = defineEmits(['update:selectedOptions'])
 
-const options = ref<{id: number, label: string}[]>([])
-const selectedOptions = ref<number[]>([])
+const options = computed(() => {
+    return props.options.map((option, index) => ({
+        id: index,
+        label: option,
+    }))
+})
+const selectedOptions = ref(props.selectedOptions)
 
 watch(
-    () => props,
+    () => props.selectedOptions,
     () => {
-        options.value = props.options.map((option, index) => ({
-            id: index,
-            label: option,
-        }))
+      console.log("group options changed")
         selectedOptions.value = props.selectedOptions
     },
     { immediate: true }

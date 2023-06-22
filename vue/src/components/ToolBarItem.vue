@@ -17,6 +17,7 @@ const props = defineProps({
   padding-left: 10px;
   padding-right: 10px;
   transition: 0.1s;
+  cursor: pointer;
 }
 .toolbar-item:hover {
   background-color: var(--wakuwaku-header-font-color);

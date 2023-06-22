@@ -8,6 +8,7 @@ import RegisterView from '../views/RegisterView.vue'
 import PostView from '../views/PostView.vue'
 import SearchView from '../views/SearchView.vue'
 import UserView from '../views/UserView.vue'
+import TagsView from '../views/TagsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -69,6 +70,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'user',
         props: true,
         component: UserView
+      },
+      {
+        path: '/tags',
+        name: 'tags',
+        component: TagsView
       }
     ]
   }

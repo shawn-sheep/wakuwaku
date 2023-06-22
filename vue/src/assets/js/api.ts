@@ -3,11 +3,13 @@ import store from "@/store";
 import API from "@/plugins/axios"
 
 export class user {
+    account_id : string;
     avatar_url : string;
     created_at : string;
     email : string;
     username : string;
     constructor() {
+        this.account_id = ''
         this.avatar_url = require('@/assets/img/user_avatar.jpg')
         this.created_at = ''
         this.email = '3336970253@qq.com'
@@ -112,6 +114,19 @@ export class comment {
     }
 }
 
+export const getTags = async (count = 10) => {
+    let out : tag[] = []
+    await API.get('/tags', { params: { count } }).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
+
 export const getComments = async (post_id : string, page : number) => {
     let out : comment[] = []
     await API.get('/comments', { params: { post_id: post_id, page: page, per_page: 10 } }).then((res) => {
@@ -200,6 +215,19 @@ export const getUser = async () => {
         console.log('get user information failed')
         goto('/enter')
     })
+}
+
+export const getUserByID = async (id : string) => {
+    let out = new user()
+    await API.get('/users/' + id).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((res) => {
+        console.log('get user information failed')
+    })
+    return out
 }
 
 export const checkLogin = async () => {
