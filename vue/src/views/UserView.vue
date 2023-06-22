@@ -3,7 +3,7 @@
     <div class="user-div">
       <div class="user-background"></div> <!--这里可以让用户自定义背景-->
       <div style="height: 50px;position: relative">
-        <waku-avatar :size="150" :src="store.state.user.avatar_url" style="margin: auto;top: -100px;position: relative;">
+        <waku-avatar :size="150" :src="targetUser.avatar_url" style="margin: auto;top: -100px;position: relative;">
         </waku-avatar>
         <div class="button-div" v-if="isSelf">
           <div class="button-item" title="修改个人信息">
@@ -18,40 +18,66 @@
           </div>
         </div>
       </div>
-      <div style="font-weight: 600;font-size: 24px;margin: 10px 0"> {{ store.state.user.username }} </div>
-      <div style="font-size: 12px;color: #AAAAAA"> {{ store.state.user.email}} </div>
+      <div style="font-weight: 600;font-size: 24px;margin: 10px 0"> {{ targetUser.username }} </div>
+      <div style="font-size: 12px;color: #AAAAAA"> {{ targetUser.email}} </div>
       <div class="upload-or-like-selector">
         <div
             class="selector-item"
             @click="displayType = 'uploads'"
             :class="{'selected' : displayType === 'uploads'}"
         >
-          我的上传
+          {{ isSelf ? '我的上传' : 'Ta的上传' }}
         </div>
         <div
             class="selector-item"
             @click="displayType = 'likes'"
             :class="{'selected' : displayType === 'likes'}"
         >
-          我的收藏
+          {{ isSelf ? '我的收藏' : 'Ta的收藏' }}
         </div>
       </div>
       <div style="width: 100%">
-        <post-player-column-infinity v-if="displayType === 'uploads'"></post-player-column-infinity>
-        <post-player-column-infinity v-if="displayType === 'likes'"></post-player-column-infinity>
+        <post-player-column-infinity v-if="displayType === 'uploads'" :get-post-list="getPostList"
+          :current-i="{per_page: 6, quality: 'sample', offset: 0, uploader_id: props.userId.toString()}"
+        ></post-player-column-infinity>
+        <post-player-column-infinity v-if="displayType === 'likes'" :get-post-list="getPostList"
+          :current-i="{per_page: 6, quality: 'sample', offset: 0, favorited_by: props.userId.toString()}"
+        ></post-player-column-infinity>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import WakuAvatar from "@/components/WakuAvatar";
+import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store";
-import {ref} from "vue";
+import { ref, computed, watch } from "vue";
 import PostPlayerColumnInfinity from "@/components/postPlayerColumnInfinity.vue";
+import { getUserByID, user, getPostPreviews } from "@/assets/js/api";
+
+// eslint-disable-next-line no-undef
+const props = defineProps<{
+  userId: number
+}>()
 
 const displayType = ref<string>('uploads')
-const isSelf = ref<boolean>(true)
+const isSelf = computed(() => store.state.user.account_id == props.userId)
+
+const targetUser = ref<user>({} as user)
+
+watch(() => props.userId, async () => {
+  displayType.value = ''
+  setTimeout(() => {
+    displayType.value = 'uploads'
+  }, 0)
+  targetUser.value = await getUserByID(props.userId.toString())
+}, { immediate: true })
+
+const getPostList  = async (i : { offset : number, per_page : number } ) => {
+  let res = await getPostPreviews(i)
+  i.offset += i.per_page
+  return { newInfo: i, newPostList : res}
+}
 
 </script>
 

@@ -30,7 +30,10 @@
             </div>
           </div>
         </div>
-        <waku-link class="source-div" @click="goto(info.post.source, true, false)">{{ 'source:' + info.post.source }}</waku-link>
+        <div style="display: flex;flex-direction: row;gap: 20px; margin: 20px 0;">
+          <waku-link class="source-div" @click="goto(info.post.source, true, false)">{{ 'Source: ' + info.post.source }}</waku-link>
+          <waku-link class="uploader-div" @click="goto(`/user/${info.post.account_id}`, true)">{{ 'Uploader: ' + info.post.account_id }}</waku-link>
+        </div>
         <div style="display: flex;flex-direction: row;gap: 20px">
           <div class="rect-div">{{ info.post.imgs[0].width + 'x' + info.post.imgs[0].height}}</div>
           <div class="date-div">{{ info.post.date }}</div>
@@ -197,16 +200,16 @@ const onDelete = () => {
   line-height: 22px;
   margin: 10px 0;
 }
-.rect-div,.date-div,.score-div {
+.rect-div,.date-div,.score-div, .source-div, .uploader-div {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
   /*margin: 20px 0;*/
 }
-.source-div {
+/* .source-div {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
   margin: 20px 0;
-}
+} */
 .comments-div {
   margin: 20px 0;
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="comment-div">
-    <waku-avatar :src="props.comment.avatar_url ? props.comment.avatar_url : require('@/assets/img/user_avatar.jpg')" :size="40"></waku-avatar>
+    <waku-avatar :src="props.comment.avatar_url" :size="40"></waku-avatar>
     <div style="width: 100%">
       <div class="username-div">{{ props.comment.username }}</div>
       <div class="content-div">{{ props.comment.content }}</div>

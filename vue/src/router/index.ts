@@ -66,7 +66,7 @@ const routes: Array<RouteRecordRaw> = [
         component: SearchView
       },
       {
-        path: '/user/:id',
+        path: '/user/:userId',
         name: 'user',
         props: true,
         component: UserView
