@@ -88,6 +88,7 @@ const isSelf = ref<boolean>(true)
   transition: all 0.1s;
   display: flex;
   /*color: var(--wakuwaku-color-dark);*/
+  cursor: pointer;
 }
 .button-item:hover {
   background-color: rgba(0, 0, 0, 0.04);
@@ -105,6 +106,7 @@ const isSelf = ref<boolean>(true)
   position: relative;
   font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
 }
 .selected::after {
   content: '';
