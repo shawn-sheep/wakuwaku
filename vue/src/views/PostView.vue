@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, watch} from 'vue'
-import {getImageByID, goto, comment, postDetail, tag, getComments} from "@/assets/js/api";
+import {getImageByID, goto, comment, postDetail, tag, getComments, image} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuTag from "@/components/WakuTag.vue"
 import WakuButton from "@/components/WakuButton.vue"
@@ -116,6 +116,7 @@ const getTags = () => {
 const updateImage = (id : string) => {
   getImageByID(id).then((res) => {
     info.post = res
+    if (info.post.imgs.length == 0) info.post.imgs.push(new image())
     updateContent()
     getTags()
     console.log(info.post)

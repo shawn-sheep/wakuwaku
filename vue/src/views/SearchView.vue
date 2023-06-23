@@ -93,7 +93,7 @@ const onGetImageList  = async (i : { offset : number, per_page : number } ) => {
 
 :deep .rating-options.waku-button-group button {
   margin: 0 5px;
-  padding: 10px 10px;
+  padding: 10px 13px;
   font-weight: 600;
   font-size: 16px;
 }
