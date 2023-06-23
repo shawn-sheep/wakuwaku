@@ -141,7 +141,7 @@ export const getComments = async (post_id : string, page : number) => {
 }
 
 
-export const goto = (url : string, newTab=false, useRouter=true) => {
+export const goto = (url : any, newTab=false, useRouter=true) => {
     if(newTab) {
         if(useRouter) {
             const href = router.resolve({

@@ -71,7 +71,7 @@ const toggleOption = (optionId: number) => {
   color: var(--wakuwaku-font-color-dark);
   cursor: pointer;
   font-size: 14px;
-  margin-right: 10px;
+  margin: 0 10px;
   padding: 10px 15px;
   transition: all 0.2s ease-in-out;
 }
