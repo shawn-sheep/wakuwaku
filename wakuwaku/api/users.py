@@ -76,9 +76,14 @@ def register():
               type: string
               description: An error message.
     """
-    username = request.json.get("username")
-    password = request.json.get("password")
-    email = request.json.get("email")
+    if request.is_json:
+        username = request.json.get("username")
+        password = request.json.get("password")
+        email = request.json.get("email")
+    else:
+        username = request.form.get("username")
+        password = request.form.get("password")
+        email = request.form.get("email")
 
     if username is None or password is None or email is None:
         return jsonify({"message": "username, password and email are required"}), 400
@@ -142,8 +147,12 @@ def login():
               type: string
               description: An error message.
     """
-    username = request.json.get("username")
-    password = request.json.get("password")
+    if request.is_json:
+        username = request.json.get("username")
+        password = request.json.get("password")
+    else:
+        username = request.form.get("username")
+        password = request.form.get("password")
 
     if username is None or password is None:
         return jsonify({"message": "username and password are required"}), 400
@@ -335,9 +344,14 @@ def update_user_info():
               description: An error message.
               example: username already exists
     """
-    username = request.json.get("username")
-    email = request.json.get("email")
-    avatar_url = request.json.get("avatar_url")
+    if request.is_json:
+        username = request.json.get("username")
+        email = request.json.get("email")
+        avatar_url = request.json.get("avatar_url")
+    else:
+        username = request.form.get("username")
+        email = request.form.get("email")
+        avatar_url = request.form.get("avatar_url")
 
     if username is not None:
         if Account.query.filter_by(username=username).first() is not None:
