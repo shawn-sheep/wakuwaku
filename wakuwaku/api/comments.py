@@ -139,6 +139,7 @@ WITH RECURSIVE cascaded_comments AS (
 )
 SELECT cascaded_comments.*, account.avatar_url, account.username
 FROM cascaded_comments NATURAL JOIN account
+ORDER BY created_at DESC;
     '''
     comments = db.session.execute(query, {"post_id": post_id, "per_page": per_page, "offset": (page - 1) * per_page}).fetchall()
     comments = [dict(comment) for comment in comments]

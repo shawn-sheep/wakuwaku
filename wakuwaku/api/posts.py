@@ -1,5 +1,5 @@
 from wakuwaku.api import bp
-from wakuwaku.models import Account, Post, Comment, Vote, Image, PostTag, Tag
+from wakuwaku.models import Account, Post, Comment, Vote, Image, PostTag, Tag, Favorite
 from wakuwaku.extensions import db
 
 from flasgger import swag_from
@@ -73,6 +73,16 @@ specs_dict = {
         "PostDetail": {
             "type": "object",
             "properties": {
+                "self_vote": {
+                    "type": "integer",
+                    "description": "The vote of the current user.",
+                    "example": 1,
+                },
+                "self_fav": {
+                    "type": "boolean",
+                    "description": "The favorite of the current user.",
+                    "example": True,
+                },
                 "images": {
                     "type": "array",
                     "items": {
@@ -402,6 +412,19 @@ def get_post(post_id):
     if post is None:
         return jsonify({"message": "post not found"}), 404
     res = post.to_dict()
+
+    res["self_vote"] = 0
+    if current_user.is_authenticated:
+        vote = Vote.query.filter_by(account_id=current_user.account_id, post_id=post_id).first()
+        if vote is not None:
+            res["self_vote"] = vote.value
+
+    res["self_fav"] = 0
+    if current_user.is_authenticated:
+        fav = Favorite.query.filter_by(account_id=current_user.account_id, post_id=post_id).first()
+        if fav is not None:
+            res["self_fav"] = 1
+
     res["images"] = []
     for image in post.images:
         res["images"].append(image.to_dict())

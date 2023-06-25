@@ -44,8 +44,8 @@ CREATE TABLE post_tag (
     post_id INTEGER NOT NULL,
     tag_id INTEGER NOT NULL,
     PRIMARY KEY (post_id, tag_id),
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (tag_id) REFERENCES tag(tag_id)
+    FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tag(tag_id) ON DELETE CASCADE
 );
 
 CREATE TABLE comment (

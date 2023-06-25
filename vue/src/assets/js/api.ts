@@ -62,7 +62,9 @@ export class postDetail {
     score: number;
     source: string;
     title: string;
-    tags: tag[]
+    tags: tag[];
+    self_vote: number;
+    self_fav: boolean;
     constructor() {
         this.account_id = ''
         this.content = ''
@@ -73,6 +75,8 @@ export class postDetail {
         this.source = ''
         this.title = ''
         this.tags = []
+        this.self_vote = 0
+        this.self_fav = false
     }
 }
 
@@ -114,6 +118,38 @@ export class comment {
     }
 }
 
+export const vote = async (post_id : string, vote : string) => {
+    let out = null
+    const formData = new FormData()
+    formData.append('post_id', post_id)
+    formData.append('vote', vote)
+    await API.post('/vote', formData).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
+
+export const favorite = async (post_id : string, favorite : boolean) => {
+    let out = null
+    const formData = new FormData()
+    formData.append('post_id', post_id)
+    formData.append('favorite', favorite ? 'favorite' : 'unfavorite')
+    await API.post('/favorite', formData).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
+
 export const getTags = async (count = 10) => {
     let out : tag[] = []
     await API.get('/tags', { params: { count } }).then((res) => {
@@ -140,6 +176,22 @@ export const getComments = async (post_id : string, page : number) => {
     return out
 }
 
+export const createComment = async (post_id : string, parent_id : string, content : string) => {
+    let out = null
+    const formData = new FormData()
+    formData.append('post_id', post_id)
+    formData.append('parent_id', parent_id)
+    formData.append('content', content)
+    await API.post('/comment', formData).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((err) => {
+        console.log(err)
+    })
+    return out
+}
 
 export const goto = (url : any, newTab=false, useRouter=true) => {
     if(newTab) {
@@ -262,6 +314,8 @@ export const getImageByID = async (id : string) => {
             post.title = res_data.title
             post.imgs = res_data.images
             post.tags = res_data.tags
+            post.self_vote = res_data.self_vote
+            post.self_fav = res_data.self_fav
             // 对tags按照count排序
             post.tags.sort((a : any, b : any) => {
                 return b.count - a.count
