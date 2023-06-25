@@ -226,7 +226,7 @@ export const login = async (form: { account: string, password: string }) => {
         }
     }).catch((res) => {
         console.log(res)
-        out = '登录时发生错误'
+        out = res.response.data.message
     })
     return out
 }
@@ -244,7 +244,7 @@ export const register = async (form: { email: string, account: string, password:
         }
     }).catch((res) => {
         console.log(res)
-        out = '注册时发生错误'
+        out = res.response.data.message
     })
     return out
 }
