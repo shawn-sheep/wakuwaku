@@ -156,7 +156,7 @@ FROM cascaded_comments NATURAL JOIN account
     comments = [comment for comment in comments if comment["parent_id"] == 0]
     return jsonify(comments), 200
 
-@bp.route("/comments", methods=["POST"])
+@bp.route("/comment", methods=["POST"])
 @login_required
 def create_comment():
     """Create a comment.
@@ -208,3 +208,120 @@ def create_comment():
     db.session.add(comment)
     db.session.commit()
     return jsonify(comment.to_dict()), 201
+
+@bp.route("/comment/<int:comment_id>", methods=["PUT"])
+@login_required
+def update_comment(comment_id):
+    """Update a comment.
+
+    This endpoint allows users to update a comment.
+    
+    ---
+    tags:
+        - comments
+    parameters:
+        -   name: comment_id
+            in: path
+            type: integer
+            required: true
+            description: The comment ID.
+        -   name: content
+            in: formData
+            type: string
+            required: true
+            description: The comment content.
+    responses:
+        200:
+            description: Comment updated.
+            schema:
+                $ref: "#/definitions/Comment"
+        400:
+            description: Invalid parameters
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: invalid parameters
+        403:
+            description: Forbidden
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: forbidden
+        404:
+            description: Comment not found
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: comment not found
+    """
+    try:
+        content = request.form.get("content")
+    except (TypeError, ValueError):
+        return jsonify({"message": "invalid parameters"}), 400
+
+    comment = Comment.query.get(comment_id)
+    if comment is None:
+        return jsonify({"message": "comment not found"}), 404
+    if comment.account_id != current_user.account_id:
+        return jsonify({"message": "forbidden"}), 403
+
+    comment.content = content
+    db.session.commit()
+    return jsonify(comment.to_dict()), 200
+
+@bp.route("/comment/<int:comment_id>", methods=["DELETE"])
+@login_required
+def delete_comment(comment_id):
+    """Delete a comment.
+
+    This endpoint allows users to delete a comment.
+    
+    ---
+    tags:
+        - comments
+    parameters:
+        -   name: comment_id
+            in: path
+            type: integer
+            required: true
+            description: The comment ID.
+    responses:
+        204:
+            description: Comment deleted.
+        403:
+            description: Forbidden
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: forbidden
+        404:
+            description: Comment not found
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: An error message.
+                        example: comment not found
+    """
+    comment = Comment.query.get(comment_id)
+    if comment is None:
+        return jsonify({"message": "comment not found"}), 404
+    if comment.account_id != current_user.account_id:
+        return jsonify({"message": "forbidden"}), 403
+
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({}), 204
