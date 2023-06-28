@@ -324,8 +324,8 @@ def get_posts():
     post_query = post_query.filter(Post.rating.in_(ratings.split()))
 
     order_dict = {
-        "new": Post.created_at.desc(),
-        "old": Post.created_at.asc(),
+        "new": Post.post_id.desc(),
+        "old": Post.post_id.asc(),
         "score": text("score desc, post.post_id desc"),
         "rank": text("score desc, post.post_id desc"),
     }
