@@ -11,7 +11,7 @@
               <svg style="width: 20px;height: 20px;margin:auto" fill="CurrentColor" stroke="CurrentColor" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m19 20.25c0-.402-.356-.75-.75-.75-2.561 0-11.939 0-14.5 0-.394 0-.75.348-.75.75s.356.75.75.75h14.5c.394 0 .75-.348.75-.75zm-12.023-7.083c-1.334 3.916-1.48 4.232-1.48 4.587 0 .527.46.749.749.749.352 0 .668-.137 4.574-1.493zm1.06-1.061 3.846 3.846 8.824-8.814c.195-.195.293-.451.293-.707 0-.255-.098-.511-.293-.706-.692-.691-1.742-1.741-2.435-2.432-.195-.195-.451-.293-.707-.293-.254 0-.51.098-.706.293z" fill-rule="nonzero"/></svg>
             </div>
           </div>
-          <div class="button-item" title="上传图片">
+          <div class="button-item" title="上传图片" @click="goto('/upload')">
             <div style="margin: auto">
               <svg style="width: 20px;height: 20px;margin:auto" fill="CurrentColor" stroke="CurrentColor" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z"/></svg>
             </div>
@@ -53,7 +53,7 @@ import WakuAvatar from "@/components/WakuAvatar.vue";
 import store from "@/store";
 import { ref, computed, watch } from "vue";
 import PostPlayerColumnInfinity from "@/components/postPlayerColumnInfinity.vue";
-import { getUserByID, user, getPostPreviews } from "@/assets/js/api";
+import { getUserByID, user, getPostPreviews, goto } from "@/assets/js/api";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{

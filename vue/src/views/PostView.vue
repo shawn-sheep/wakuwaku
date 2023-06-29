@@ -21,7 +21,6 @@
         </div>
         <div class="title-div">{{ info.post.title !== '' ? info.post.title : '无题' }}</div>
         <div class="content-div" v-html="info.post.content"></div>
-
         <div class="tags-div">
           <div class="tag-div" v-for="item in type_names" :key="item.name">
             <div class="tag-type-div" v-if="info.tags[item.type]">{{ item.name }}</div>
@@ -39,6 +38,12 @@
           <div class="date-div">{{ info.post.date }}</div>
           <div class="score-div">
             {{ info.post.score }}
+            <div style="display: inline-block;height: 13px;vertical-align: bottom">
+              <svg style="width: 13px;height: 13px" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="CurrentColor"><path d="M5 22h-5v-12h5v12zm17.615-8.412c-.857-.115-.578-.734.031-.922.521-.16 1.354-.5 1.354-1.51 0-.672-.5-1.562-2.271-1.49-1.228.05-3.666-.198-4.979-.885.906-3.656.688-8.781-1.688-8.781-1.594 0-1.896 1.807-2.375 3.469-1.221 4.242-3.312 6.017-5.687 6.885v10.878c4.382.701 6.345 2.768 10.505 2.768 3.198 0 4.852-1.735 4.852-2.666 0-.335-.272-.573-.96-.626-.811-.062-.734-.812.031-.953 1.268-.234 1.826-.914 1.826-1.543 0-.529-.396-1.022-1.098-1.181-.837-.189-.664-.757.031-.812 1.133-.09 1.688-.764 1.688-1.41 0-.565-.424-1.109-1.26-1.221z"/></svg>
+            </div>
+          </div>
+          <div class="fav-div">
+            {{ info.post.fav_count }}
             <div style="display: inline-block;height: 14px;vertical-align: bottom">
               <svg style="width: 14px;height: 14px" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" fill="CurrentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 5.72c-2.624-4.517-10-3.198-10 2.461 0 3.725 4.345 7.727 9.303 12.54.194.189.446.283.697.283s.503-.094.697-.283c4.977-4.831 9.303-8.814 9.303-12.54 0-5.678-7.396-6.944-10-2.461z" fill-rule="nonzero"/></svg>
             </div>
@@ -225,7 +230,7 @@ const onSend = async () => {
   line-height: 22px;
   margin: 10px 0;
 }
-.rect-div,.date-div,.score-div, .source-div, .uploader-div {
+.rect-div,.date-div,.score-div,.fav-div,.source-div, .uploader-div {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
   /*margin: 20px 0;*/

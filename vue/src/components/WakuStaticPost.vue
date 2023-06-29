@@ -8,7 +8,7 @@
       </div>
     </transition>
     <img
-        v-if="isImage"
+        v-if="!isVideo"
         :src="img === undefined ? '': img.sample_url"
         @load="onLoaded"
     >

@@ -3,7 +3,8 @@
     <slot name="before"></slot>
     <div style="position: relative;flex-grow: 1">
       <div class="label">{{ ip.val!==''?'' : props.label }}</div>
-      <input v-model="ip.val" :type="type" @blur='fnBlur' @input='fnInput'>
+      <input v-model="ip.val" :type="type" @blur='fnBlur' @input='fnInput' v-if="props.type !== 'text-area'">
+      <textarea v-model="ip.val" @blur='fnBlur' @input='fnInput' v-if="props.type === 'text-area'"></textarea>
     </div>
   </div>
 </template>
@@ -62,7 +63,7 @@ watch(
   margin-bottom: 8px;
   padding: 0 18px;
 }
-input {
+input, textarea {
   position: relative;
   width: 100%;
   height: 100%;
@@ -76,7 +77,12 @@ input {
   letter-spacing: 0.25px;
   z-index: 100;
 }
-input:focus-visible {
+textarea {
+  resize: none;
+  margin: 10px 0;
+  height: calc(100% - 20px);
+}
+input:focus-visible, textarea:focus-visible {
   outline: none;
 }
 .label {
