@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="assets/font/Inter Web/inter.css">
+<link rel="stylesheet" href="assets/font/Inter Web/inter.css" />
 <template>
   <div>
     <router-view/>
@@ -59,7 +59,7 @@ nav a.router-link-exact-active {
 
 body {
   margin: 0;
-  user-select: none;
+  /* user-select: none; */
 }
 
 .fade-enter-active {
