@@ -126,7 +126,7 @@ WITH RECURSIVE cascaded_comments AS (
   FROM comment
   WHERE comment_id IN (
 		SELECT c.comment_id FROM comment c
-		WHERE c.post_id = :post_id AND c.parent_id = 0
+		WHERE c.post_id = :post_id AND c.parent_id IS NULL
 		ORDER BY created_at DESC
 		LIMIT :per_page OFFSET :offset
 	)
@@ -151,10 +151,10 @@ ORDER BY created_at DESC;
                 comment["replies"].append(c)
                 add_child_comments(c)
     for comment in comments:
-        if comment["parent_id"] == 0:
+        if comment["parent_id"] == None:
             add_child_comments(comment)
     # 只返回一级评论
-    comments = [comment for comment in comments if comment["parent_id"] == 0]
+    comments = [comment for comment in comments if comment["parent_id"] == None]
     return jsonify(comments), 200
 
 @bp.route("/comment", methods=["POST"])
@@ -279,6 +279,8 @@ def update_comment(comment_id):
     db.session.commit()
     return jsonify(comment.to_dict()), 200
 
+from sqlalchemy import delete
+
 @bp.route("/comment/<int:comment_id>", methods=["DELETE"])
 @login_required
 def delete_comment(comment_id):
@@ -323,6 +325,6 @@ def delete_comment(comment_id):
     if comment.account_id != current_user.account_id:
         return jsonify({"message": "forbidden"}), 403
 
-    db.session.delete(comment)
+    db.session.execute(delete(Comment).where(Comment.comment_id == comment_id))
     db.session.commit()
     return jsonify({}), 204

@@ -598,3 +598,67 @@ def create_post():
     return jsonify({
         "message": "post created successfully",
         "post_id": post_id}), 201
+
+from sqlalchemy import delete
+
+@bp.route("/posts", methods=["DELETE"])
+@login_required
+def delete_post():
+    """Delete a post.
+
+    This endpoint allows users to delete a post.
+
+    ---
+    tags:
+        - posts
+    parameters:
+        -   name: post_id
+            in: formData
+            type: integer
+            required: true
+            description: The ID of the post.
+    responses:
+        200:
+            description: Post deleted successfully.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Success message.
+                        example: post deleted successfully
+        404:
+            description: Post not found.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: post not found
+        403:
+            description: Permission denied.
+            schema:
+                type: object
+                properties:
+                    message:
+                        type: string
+                        description: Error message.
+                        example: permission denied
+    """
+    try:
+        post_id = int(request.form["post_id"])
+    except (KeyError, ValueError):
+        return jsonify({"message": "invalid parameters"}), 400
+
+    post = Post.query.filter_by(post_id=post_id).first()
+    if post is None:
+        return jsonify({"message": "post not found"}), 404
+
+    if post.account_id != current_user.account_id:
+        return jsonify({"message": "permission denied"}), 403
+
+    db.session.execute(delete(Post).where(Post.post_id == post_id))
+    db.session.commit()
+
+    return jsonify({"message": "post deleted successfully"}), 200
