@@ -75,7 +75,7 @@ input, textarea {
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.25px;
-  z-index: 100;
+  z-index: 1;
 }
 textarea {
   resize: none;

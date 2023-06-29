@@ -19,7 +19,18 @@
     <div class="information-div">
       <div class="title-description-div">
         <waku-form-item title="标题" v-model="form.title"></waku-form-item>
-        <waku-form-item title="简介" type="text-area" style="height: 80px" v-model="form.content"></waku-form-item>
+        <waku-form-item title="简介" type="text-area" style="height: 120px" v-model="form.content"></waku-form-item>
+      </div>
+      <div ref="tagRef" style="padding: 10px 0;position: relative">
+        <waku-form-item title="标签" v-model="form.search" type=""></waku-form-item>
+        <div class="auto-complete" v-if="visible" v-click-outside:[tagRef]="fn">
+          <div class="auto-complete-item" v-for="item in autoCompletes" :key="item.tag_id" @click.stop="insertTag(item)">{{ item.name }}</div>
+        </div>
+        <div class="tags-div">
+          <div style="display: inline-block;background-color: rgba(0, 0, 0, 0.4);color: #FFFFFF;border-radius: 5px; margin-right: 10px" v-for="item in form.tags" :key="item.tag_id">
+            <waku-deletable-item  @delete="deleteTag(item)" style="padding: 5px 10px;height: auto;gap: 5px;">{{ item.name }}</waku-deletable-item>
+          </div>
+        </div>
       </div>
       <waku-form-item title="来源" v-model="form.source" style="padding: 10px 0"></waku-form-item>
       <div class="rating-div">
@@ -29,13 +40,15 @@
         <waku-audio style="margin: auto 0" name="Questionable" value="Q" v-model="form.rating"></waku-audio>
         <waku-audio style="margin: auto 0" name="Explicit" value="E" v-model="form.rating"></waku-audio>
       </div>
+      <waku-button style="width: 200px;margin:20px auto" color="#376ea2" :enable="true" @click="onSubmit">上传</waku-button>
+      <div style="height: 200px;"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from "vue";
-import {image} from "@/assets/js/api";
+import {reactive, ref, watch} from "vue";
+import {autoComplete, image, tag} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuButton from "@/components/WakuButton.vue"
 import WakuInput from "@/components/WakuInput.vue";
@@ -48,14 +61,22 @@ const form = reactive<{
   title : string,
   content : string,
   source: string,
-  rating: string
+  rating: string,
+  search: string,
+  tags: tag[],
 }>({
   images : undefined,
   title: '',
   content: '',
   source: '',
-  rating: 'G'
+  rating: 'G',
+  search: '',
+  tags: []
 })
+
+const autoCompletes = ref<tag[]>()
+const visible = ref<boolean>(false)
+const tagRef = ref<Element>()
 
 const file = ref<File>();
 const setImage = (event : Event) => {
@@ -74,8 +95,46 @@ const setImage = (event : Event) => {
   // }
 }
 
+const insertTag = (tag : tag) => {
+  form.tags.push(tag);
+  visible.value = false
+}
+
+const deleteTag = (tag : tag) => {
+  form.tags.splice(form.tags.findIndex((item) => {
+    return item == tag;
+  }), 1);
+  visible.value = false
+}
+
 const onDelete = () => {
   form.images = undefined;
+}
+
+const onInput = () => {
+  console.log('onInput', form.search)
+  visible.value = true;
+  // 补全最后一词
+  const index = form.search.lastIndexOf(' ')
+  const lastWord = form.search.substring(index + 1)
+  autoComplete(lastWord).then(res => {
+    autoCompletes.value = res
+  })
+}
+
+const onSubmit = () => {
+  console.log(form);
+}
+watch(
+    () => form.search,
+    (val, oldVal) => {
+      onInput()
+    },
+    {}
+)
+
+const fn = () => {
+  visible.value = false
 }
 </script>
 
@@ -119,5 +178,31 @@ const onDelete = () => {
   font-size: 14px;
   font-weight: 600;
   color: #777777;
+}
+.auto-complete {
+  position: absolute;
+  left: 60px;
+  width: calc(100% - 60px);
+  background-color: #FAFAFA;
+  z-index: 2;
+  border-radius: 5px;
+  text-align: left;
+  overflow: hidden;
+}
+.auto-complete-item {
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.1s;
+  padding-left: 20px;
+}
+.auto-complete-item:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.tags-div {
+  padding-left: 60px;
+  width: calc(100% - 60px);
+  text-align: left;
 }
 </style>
