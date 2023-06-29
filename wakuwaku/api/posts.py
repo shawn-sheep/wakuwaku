@@ -314,7 +314,7 @@ def get_posts():
         unknown_tags = [tag for tag in tags_list if tag not in [tag.name for tag in tags_info]]
         # return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
         # 未知的tag作为关键词搜索
-        post_query = post_query.filter(text("to_tsvector('zhcfg', title || ' ' || content) @@ to_tsquery('zhcfg', :query)").params(query=" & ".join(unknown_tags)))
+        post_query = post_query.filter(text("to_tsvector('zhcfg', title || ' ' || content) @@ websearch_to_tsquery('zhcfg', :query)").params(query=" & ".join(unknown_tags)))
 
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
