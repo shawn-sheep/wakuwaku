@@ -302,15 +302,19 @@ def get_posts():
     except ValueError:
         return jsonify({"message": "invalid parameters"}), 400
 
-    tag_query = db.session.query(Tag).filter(Tag.name.in_(tags.split()))
+    # 去重
+    tags_list = list(set(tags.split()))
+    tag_query = db.session.query(Tag).filter(Tag.name.in_(tags_list))
     tags_info = tag_query.all()
-
-    if len(tags_info) != len(tags.split()):
-        unknown_tags = [tag for tag in tags.split() if tag not in [tag.name for tag in tags_info]]
-        return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
 
     # post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height).outerjoin(Post.images)
     post_query = db.session.query(Post.post_id)
+
+    if len(tags_info) != len(tags_list):
+        unknown_tags = [tag for tag in tags_list if tag not in [tag.name for tag in tags_info]]
+        # return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
+        # 未知的tag作为关键词搜索
+        post_query = post_query.filter(text("to_tsvector('zhcfg', title || ' ' || content) @@ to_tsquery('zhcfg', :query)").params(query=" & ".join(unknown_tags)))
 
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
