@@ -1,7 +1,7 @@
 <template>
-  <div ref="containerRef" class="static-post-div" :style="{width: props.width === undefined ? '100%': props.width + 'px'}">
+  <div ref="containerRef" class="static-post-div" :style="{width: props.width === undefined ? '100%': props.width + 'px', height: isLoaded ? undefined : containerHeight + 'px' }">
     <transition name="fade" appear>
-      <div style="width: 100%;position: absolute;background-color: #FFFFFF" v-if="(!isLoaded) && isImage" :style="{ height: containerHeight + 'px'}">
+      <div style="width: 100%;position: absolute;background-color: #FFFFFF" v-if="(!isLoaded)" :style="{ height: containerHeight + 'px'}">
         <div style="position: absolute;top:50%;left: 50%;transform: translate(-50%, -50%)">
           <div class="spinner-5"></div>
         </div>
@@ -9,13 +9,14 @@
     </transition>
     <img
         v-if="!isVideo"
-        :src="img === undefined ? '': img.sample_url"
+        :src="props.img === undefined ? '': props.img.sample_url"
         @load="onLoaded"
     >
     <video
         v-if="isVideo"
-        :src="img === undefined ? '': img.sample_url"
-        @load="onLoaded"
+        :style="{visibility: isLoaded ? 'visible' : 'hidden'}"
+        :src="props.img === undefined ? '': props.img.sample_url"
+        @loadedmetadata="onLoaded"
         controls
     ></video>
   </div>
@@ -24,7 +25,6 @@
 <script setup lang="ts">
 import {image} from "@/assets/js/api";
 import {computed, onMounted, onUnmounted, ref, watch} from "vue";
-import store from "@/store";
 
 // eslint-disable-next-line no-undef
 const props = defineProps<{
@@ -33,7 +33,6 @@ const props = defineProps<{
   height ?: number
 }>()
 
-const img = ref<image>()
 const containerRef = ref<Element>()
 const containerHeight = ref<number>(0)
 const isLoaded = ref<boolean>(false)
@@ -41,6 +40,7 @@ const isLoaded = ref<boolean>(false)
 let intervalHook : number
 
 onMounted(() => {
+  console.log('mounted')
   calcContainerHeight()
   intervalHook = setInterval(calcContainerHeight, 300)
   watch(
@@ -48,7 +48,6 @@ onMounted(() => {
       (val, oldVal) => {
         if(val.sample_url != oldVal?.sample_url) {
           isLoaded.value = false
-          img.value = val
           calcContainerHeight()
         }
       },
@@ -59,10 +58,12 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  console.log('unmounted')
   clearInterval(intervalHook)
 })
 
 const calcContainerHeight = () => {
+  // console.log('calc')
   if (isLoaded.value) return
   if (props.height != undefined) {
     containerHeight.value = props.height;
@@ -72,17 +73,17 @@ const calcContainerHeight = () => {
   if (props.width != undefined) calcWidth = props.width
   else if (containerRef.value != undefined) calcWidth = containerRef.value?.clientWidth
   containerHeight.value = calcWidth / props.img.width * props.img.height
-  // console.log(containerHeight.value)
+  console.log(containerRef.value?.clientWidth)
 }
 
 const isImage = computed(() => {
-  if (img.value === undefined) return false;
-  return img.value.sample_url.match(/\.(jpg|jpeg|png|gif)$/i)
+  if (props.img === undefined) return false;
+  return props.img.sample_url.match(/\.(jpg|jpeg|png|gif)$/i)
 })
 
 const isVideo = computed(() => {
-  if (img.value === undefined) return false;
-  return img.value.sample_url.match(/\.(mp4|webm|ogg)$/i)
+  if (props.img === undefined) return false;
+  return props.img.sample_url.match(/\.(mp4|webm|ogg)$/i)
 })
 
 const onLoaded = () => {
