@@ -362,7 +362,7 @@ def update_user_info():
             return jsonify({"message": "email already exists"}), 400
         current_user.email = email
     if avatar is not None:
-        thumbnail = PILImage.open(avatar)
+        thumbnail = PILImage.open(avatar).convert("RGB")
         # 裁剪为正方形
         width, height = thumbnail.size
         length = min(width, height)

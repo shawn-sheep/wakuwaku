@@ -4,7 +4,7 @@
       <div class="post-upload" v-if="info.images === undefined">
         <div style="height: 50px"></div>
         <waku-button style="width: 200px;" :enable="true" >
-          <input class="file-btn" type="file" @change="setImage">
+          <input class="file-btn" type="file" @change="setImage" accept="image/*">
           上传图片
         </waku-button>
         <div style="font-size: 12px;font-weight: 500">请上传JPEG/PNG文件</div>
