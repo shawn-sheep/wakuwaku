@@ -297,6 +297,9 @@ def get_user_info_by_id(user_id):
         200,
     )
 
+from PIL import Image as PILImage
+from wakuwaku.utils import save_file
+
 @bp.route("/user", methods=["PUT"])
 @login_required
 def update_user_info():
@@ -308,22 +311,21 @@ def update_user_info():
     tags:
         - users
     parameters:
-      - in: body
-        name: user
-        description: User information to update.
-        required: true
-        schema:
-          type: object
-          properties:
-            username:
-              type: string
-              description: The updated username of the user.
-            email:
-              type: string
-              description: The updated email address of the user.
-            avatar_url:
-              type: string
-              description: The updated avatar URL of the user.
+      - in: formData
+        name: username
+        description: The username of the user.
+        required: false
+        type: string
+      - in: formData
+        name: email
+        description: The email address of the user.
+        required: false
+        type: string
+      - in: formData
+        name: avatar
+        description: The avatar image of the user.
+        required: false
+        type: file
     responses:
       200:
         description: User information updated successfully.
@@ -344,14 +346,12 @@ def update_user_info():
               description: An error message.
               example: username already exists
     """
-    if request.is_json:
-        username = request.json.get("username")
-        email = request.json.get("email")
-        avatar_url = request.json.get("avatar_url")
-    else:
-        username = request.form.get("username")
-        email = request.form.get("email")
-        avatar_url = request.form.get("avatar_url")
+    username = request.form.get("username")
+    email = request.form.get("email")
+    avatar = request.files.get("avatar")
+
+    if username is None and email is None and avatar is None:
+        return jsonify({"message": "no data provided"}), 400
 
     if username is not None:
         if Account.query.filter_by(username=username).first() is not None:
@@ -361,8 +361,19 @@ def update_user_info():
         if Account.query.filter_by(email=email).first() is not None:
             return jsonify({"message": "email already exists"}), 400
         current_user.email = email
-    if avatar_url is not None:
+    if avatar is not None:
+        thumbnail = PILImage.open(avatar)
+        # 裁剪为正方形
+        width, height = thumbnail.size
+        length = min(width, height)
+        left = (width - length) / 2
+        top = (height - length) / 2
+        right = (width + length) / 2
+        bottom = (height + length) / 2
+        thumbnail = thumbnail.crop((left, top, right, bottom))
+        
+        thumbnail.thumbnail((180, 180))
+        avatar_url = save_file(thumbnail, "avatar", 100, f'{current_user.account_id}.jpg')
         current_user.avatar_url = avatar_url
-
     db.session.commit()
     return jsonify({"message": "user updated successfully"}), 200

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="background-color: rgba(0 ,0 ,0, 0.02);padding: 20px 0 20px 0">
-      <div class="post-upload" v-if="form.images === undefined">
+      <div class="post-upload" v-if="info.images === undefined">
         <div style="height: 50px"></div>
         <waku-button style="width: 200px;" :enable="true" >
           <input class="file-btn" type="file" @change="setImage">
@@ -9,36 +9,36 @@
         </waku-button>
         <div style="font-size: 12px;font-weight: 500">请上传JPEG/PNG文件</div>
       </div>
-      <div style="position: relative;width: 60%;margin: auto" v-if="form.images !== undefined">
+      <div style="position: relative;width: 60%;margin: auto" v-if="info.images !== undefined">
         <div style="position: absolute;right: 0;z-index: 2;padding: 0 10px;background-color: rgba(0, 0, 0, 0.4);border-bottom-left-radius: 8px">
-          <waku-deletable-item style="color: #EEEEEE;font-size: 12px" @delete="onDelete">{{ file.name }}</waku-deletable-item>
+          <waku-deletable-item style="color: #EEEEEE;font-size: 12px" @delete="onDelete">{{ file?.name }}</waku-deletable-item>
         </div>
-        <waku-static-post :img="form.images" style="border-radius: 0px"></waku-static-post>
+        <waku-static-post :img="info.images" style="border-radius: 0px"></waku-static-post>
       </div>
     </div>
     <div class="information-div">
       <div class="title-description-div">
-        <waku-form-item title="标题" v-model="form.title"></waku-form-item>
-        <waku-form-item title="简介" type="text-area" style="height: 120px" v-model="form.content"></waku-form-item>
+        <waku-form-item title="标题" v-model="info.title"></waku-form-item>
+        <waku-form-item title="简介" type="text-area" style="height: 120px" v-model="info.content"></waku-form-item>
       </div>
       <div ref="tagRef" style="padding: 10px 0;position: relative">
-        <waku-form-item title="标签" v-model="form.search" type=""></waku-form-item>
+        <waku-form-item title="标签" v-model="info.search" type=""></waku-form-item>
         <div class="auto-complete" v-if="visible" v-click-outside:[tagRef]="fn">
           <div class="auto-complete-item" v-for="item in autoCompletes" :key="item.tag_id" @click.stop="insertTag(item)">{{ item.name }}</div>
         </div>
         <div class="tags-div">
-          <div style="display: inline-block;background-color: rgba(0, 0, 0, 0.4);color: #FFFFFF;border-radius: 5px; margin-right: 10px" v-for="item in form.tags" :key="item.tag_id">
+          <div style="display: inline-block;background-color: rgba(0, 0, 0, 0.4);color: #FFFFFF;border-radius: 5px; margin-right: 10px" v-for="item in info.tags" :key="item.tag_id">
             <waku-deletable-item  @delete="deleteTag(item)" style="padding: 5px 10px;height: auto;gap: 5px;">{{ item.name }}</waku-deletable-item>
           </div>
         </div>
       </div>
-      <waku-form-item title="来源" v-model="form.source" style="padding: 10px 0"></waku-form-item>
+      <waku-form-item title="来源" v-model="info.source" style="padding: 10px 0"></waku-form-item>
       <div class="rating-div">
         <div class="rating-item">分级</div>
-        <waku-audio style="margin: auto 0" name="General" value="G" v-model="form.rating"></waku-audio>
-        <waku-audio style="margin: auto 0" name="Sensitive" value="S" v-model="form.rating"></waku-audio>
-        <waku-audio style="margin: auto 0" name="Questionable" value="Q" v-model="form.rating"></waku-audio>
-        <waku-audio style="margin: auto 0" name="Explicit" value="E" v-model="form.rating"></waku-audio>
+        <waku-radio style="margin: auto 0" name="General" value="g" v-model="info.rating"></waku-radio>
+        <waku-radio style="margin: auto 0" name="Sensitive" value="s" v-model="info.rating"></waku-radio>
+        <waku-radio style="margin: auto 0" name="Questionable" value="q" v-model="info.rating"></waku-radio>
+        <waku-radio style="margin: auto 0" name="Explicit" value="e" v-model="info.rating"></waku-radio>
       </div>
       <waku-button style="width: 200px;margin:20px auto" color="#376ea2" :enable="true" @click="onSubmit">上传</waku-button>
       <div style="height: 200px;"></div>
@@ -51,12 +51,12 @@ import {reactive, ref, watch} from "vue";
 import {autoComplete, image, tag} from "@/assets/js/api";
 import WakuStaticPost from "@/components/WakuStaticPost.vue";
 import WakuButton from "@/components/WakuButton.vue"
-import WakuInput from "@/components/WakuInput.vue";
 import WakuFormItem from "@/components/WakuFormItem.vue";
-import WakuAudio from "@/components/WakuAudio.vue";
+import WakuRadio from "@/components/WakuRadio.vue";
 import WakuDeletableItem from "@/components/WakuDeletableItem.vue";
+import { createPost, goto } from "@/assets/js/api";
 
-const form = reactive<{
+const info = reactive<{
   images? : image,
   title : string,
   content : string,
@@ -69,7 +69,7 @@ const form = reactive<{
   title: '',
   content: '',
   source: '',
-  rating: 'G',
+  rating: 'g',
   search: '',
   tags: []
 })
@@ -83,10 +83,10 @@ const setImage = (event : Event) => {
   console.log(event.target?.files[0])
   file.value = event.target?.files[0];
   if (!file.value) return;
-  form.images = new image()
+  info.images = new image()
   // console.log(file.webkitRelativePath)
-  form.images.sample_url = window.URL.createObjectURL(file.value);
-  console.log(form.images.sample_url)
+  info.images.sample_url = window.URL.createObjectURL(file.value);
+  console.log(info.images.sample_url)
   // const reader = new FileReader();
   // reader.readAsDataURL(file);
   // reader.onload = () => {
@@ -96,37 +96,54 @@ const setImage = (event : Event) => {
 }
 
 const insertTag = (tag : tag) => {
-  form.tags.push(tag);
+  info.tags.push(tag);
   visible.value = false
 }
 
 const deleteTag = (tag : tag) => {
-  form.tags.splice(form.tags.findIndex((item) => {
+  info.tags.splice(info.tags.findIndex((item) => {
     return item == tag;
   }), 1);
   visible.value = false
 }
 
 const onDelete = () => {
-  form.images = undefined;
+  info.images = undefined;
 }
 
 const onInput = () => {
-  console.log('onInput', form.search)
+  console.log('onInput', info.search)
   visible.value = true;
   // 补全最后一词
-  const index = form.search.lastIndexOf(' ')
-  const lastWord = form.search.substring(index + 1)
+  const index = info.search.lastIndexOf(' ')
+  const lastWord = info.search.substring(index + 1)
   autoComplete(lastWord).then(res => {
     autoCompletes.value = res
   })
 }
 
-const onSubmit = () => {
-  console.log(form);
+const onSubmit = async () => {
+  if (!file.value) {
+    alert('请选择文件')
+    return
+  }
+  const form = {
+    title: info.title,
+    content: info.content,
+    source: info.source,
+    rating: info.rating,
+    tags: info.tags.map(item => item.name).join(' '),
+    images: [file.value],
+  }
+  const res = await createPost(form)
+  if (res.message == 'post created successfully') {
+    goto('/post/' + res.post_id)
+  } else {
+    alert(`上传失败：${res.message}`)
+  }
 }
 watch(
-    () => form.search,
+    () => info.search,
     (val, oldVal) => {
       onInput()
     },

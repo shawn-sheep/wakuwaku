@@ -1,6 +1,6 @@
 <template>
-  <div class="audio-div" :class="{'selected' : props.modelValue === props.value}">
-    <div class="pointer" @click="emits('update:modelValue', props.value)">
+  <div class="audio-div" :class="{'selected' : props.modelValue === props.value}" @click="emits('update:modelValue', props.value)">
+    <div class="pointer">
       <div class="inner-pointer"></div>
     </div>
     {{ props.name }}
@@ -25,6 +25,7 @@ const emits = defineEmits(['update:modelValue'])
   font-weight: 600;
   color: #777777;
   padding: 0 10px;
+  cursor: pointer;
 }
 .pointer {
   display: inline-block;
@@ -36,7 +37,6 @@ const emits = defineEmits(['update:modelValue'])
   border-radius: 999px;
   margin-right: 5px;
   vertical-align: -5%;
-  cursor: pointer;
 }
 .inner-pointer {
   position: absolute;

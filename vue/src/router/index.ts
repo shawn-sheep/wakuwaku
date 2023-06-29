@@ -10,6 +10,7 @@ import SearchView from '../views/SearchView.vue'
 import UserView from '../views/UserView.vue'
 import TagsView from '../views/TagsView.vue'
 import UploadView from '../views/uploadView.vue'
+import UserInfoView from '../views/UserInfoView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -81,6 +82,11 @@ const routes: Array<RouteRecordRaw> = [
         path: '/upload',
         name: 'upload',
         component: UploadView
+      },
+      {
+        path: '/userinfo',
+        name: 'userinfo',
+        component: UserInfoView
       }
     ]
   }

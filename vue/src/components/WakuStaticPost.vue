@@ -73,7 +73,7 @@ const calcContainerHeight = () => {
   if (props.width != undefined) calcWidth = props.width
   else if (containerRef.value != undefined) calcWidth = containerRef.value?.clientWidth
   containerHeight.value = calcWidth / props.img.width * props.img.height
-  console.log(containerRef.value?.clientWidth)
+  // console.log(containerRef.value?.clientWidth)
 }
 
 const isImage = computed(() => {

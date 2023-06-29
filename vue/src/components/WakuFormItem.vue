@@ -6,12 +6,13 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps, reactive, watch} from 'vue'
+import { reactive, watch} from 'vue'
 import WakuInput from "@/components/WakuInput.vue";
 
+// eslint-disable-next-line no-undef
 const props = defineProps<{
   title : string,
-  type : string,
+  type? : string,
   modelValue: string
 }>();
 

@@ -295,6 +295,24 @@ export const checkLogin = async () => {
     })
 }
 
+export const updateUserInfo = async (form: { username: string | null, email: string | null, avatar: File | null }) => {
+    const formData = new FormData()
+    if (form.username) formData.append('username', form.username)
+    if (form.email) formData.append('email', form.email)
+    if (form.avatar) formData.append('avatar', form.avatar)
+    let out : any = null
+    await API.put('/user', formData).then((res) => {
+        console.log(res)
+        if (res.status === 200) {
+            out = res.data
+        }
+    }).catch((res) => {
+        console.log(res)
+        out = res.response.data
+    })
+    return out
+}
+
 export const getImageByID = async (id : string) => {
     // for (const i in store.state.recommend) {
     //     if (store.state.recommend[i].id === id) {
@@ -356,6 +374,29 @@ export const getPostPreviews = async (params : any) => {
     })
     console.log(postPreviews)
     return postPreviews
+}
+
+export const createPost = async (form : { title: string, content: string, source: string, rating: string, tags: string, images: Blob[] }) => {
+    const formData = new FormData()
+    formData.append('title', form.title)
+    formData.append('content', form.content)
+    formData.append('source', form.source)
+    formData.append('rating', form.rating)
+    formData.append('tags', form.tags)
+    for (const i in form.images) {
+        formData.append('images', form.images[i])
+    }
+    let out : any = ''
+    await API.post('/posts', formData).then((res) => {
+        console.log(res)
+        if (res.status === 201) {
+            out = res.data
+        }
+    }).catch((res) => {
+        console.log(res)
+        out = res.response.data
+    })
+    return out
 }
 
 export const autoComplete = async (q: string) => {

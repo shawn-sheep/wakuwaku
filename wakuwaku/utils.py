@@ -7,7 +7,7 @@ from PIL import Image as PILImage
 # 支持的文件类型
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
-def save_file(file : PILImage.Image, category : str, quality : int = 95):
+def save_file(file : PILImage.Image, category : str, quality : int = 95, filename : str = None) -> str:
     """
     保存文件到本地并返回文件名。
 
@@ -16,8 +16,9 @@ def save_file(file : PILImage.Image, category : str, quality : int = 95):
     :param quality: 图片质量, 0-100, 默认95。
     :return: 文件名。
     """
-    # 随机生成文件名
-    filename = str(uuid4()) + ".jpg"
+    if filename is None:
+        # 随机生成文件名
+        filename = str(uuid4()) + ".jpg"
     # 创建文件夹
     category_path = os.path.join(current_app.config['UPLOAD_FOLDER'], category)
     if not os.path.exists(category_path):
