@@ -60,6 +60,7 @@ export class postDetail {
     imgs: image[];
     post_id: string;
     score: number;
+    fav_count: number;
     source: string;
     title: string;
     tags: tag[];
@@ -72,6 +73,7 @@ export class postDetail {
         this.imgs = [new image()]
         this.post_id = ''
         this.score = 0
+        this.fav_count = 0
         this.source = ''
         this.title = ''
         this.tags = []
@@ -310,6 +312,7 @@ export const getImageByID = async (id : string) => {
             post.date = res_data.created_at
             post.post_id = res_data.post_id
             post.score = res_data.score
+            post.fav_count = res_data.fav_count
             post.source = res_data.source
             post.title = res_data.title
             post.imgs = res_data.images
