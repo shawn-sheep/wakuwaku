@@ -39,15 +39,18 @@ const info = reactive<{
   email : string,
   avatar_url : string | undefined
 }>({
-  username: store.state.user.username,
-  email: store.state.user.email,
-  avatar_url: store.state.user.avatar_url
+  username: '',
+  email: '',
+  avatar_url: undefined
 })
 
 watch(() => store.state.user, (user) => {
-  info.username = user.username;
-  info.email = user.email;
-  info.avatar_url = user.avatar_url;
+  // 异步更新
+  setTimeout(() => {
+    info.username = user.username;
+    info.email = user.email;
+    info.avatar_url = user.avatar_url;
+  }, 0)
 }, { immediate: true })
 
 const file = ref<File>();
@@ -102,6 +105,10 @@ const onSubmit = async () => {
   const res = await updateUserInfo(form);
   if (res.message == 'user updated successfully') {
     goto('/user/' + store.state.user.account_id);
+    // 刷新页面
+    setTimeout(() => {
+      location.reload();
+    }, 0)
   } else {
     alert(`修改失败：${res.message}`)
   }
