@@ -345,7 +345,7 @@ def get_posts():
     post_query = post_query.order_by(order_dict[order])
     post_query = post_query.limit(per_page).offset(offset)
     # 设置超时
-    db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
+    db.session.execute(text('SET SESSION STATEMENT_TIMEOUT TO 1000'))
 
     url_dict = {
         "preview": Image.preview_url,
