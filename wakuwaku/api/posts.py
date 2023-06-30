@@ -58,7 +58,7 @@ specs_dict = {
                     "enum": ["g", "s", "q", "e"],
                     "example": "g",
                 },
-            }
+            },
         },
         "PostPreview": {
             "type": "object",
@@ -68,7 +68,7 @@ specs_dict = {
                     "description": "The preview URL of the image.",
                     "example": "/api/images/12345678-1234-5678-1234-567812345678.jpg",
                 }
-            }
+            },
         },
         "PostDetail": {
             "type": "object",
@@ -83,19 +83,9 @@ specs_dict = {
                     "description": "The favorite of the current user.",
                     "example": True,
                 },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Image"
-                    }
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Tag"
-                    }
-                },
-            }
+                "images": {"type": "array", "items": {"$ref": "#/definitions/Image"}},
+                "tags": {"type": "array", "items": {"$ref": "#/definitions/Tag"}},
+            },
         },
         "Image": {
             "type": "object",
@@ -145,7 +135,7 @@ specs_dict = {
                     "description": "The number of images in the post.",
                     "example": 1,
                 },
-            }
+            },
         },
         "Tag": {
             "type": "object",
@@ -170,17 +160,24 @@ specs_dict = {
                     "description": "The count of the tag.",
                     "example": 123,
                 },
-            }
-        }
+            },
+        },
     }
 }
 
-specs_dict["definitions"]["PostPreview"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostPreview"]["properties"]}
-specs_dict["definitions"]["PostDetail"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostDetail"]["properties"]}
+specs_dict["definitions"]["PostPreview"]["properties"] = {
+    **specs_dict["definitions"]["Post"]["properties"],
+    **specs_dict["definitions"]["PostPreview"]["properties"],
+}
+specs_dict["definitions"]["PostDetail"]["properties"] = {
+    **specs_dict["definitions"]["Post"]["properties"],
+    **specs_dict["definitions"]["PostDetail"]["properties"],
+}
 
 from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import func, and_, text
+
 
 @bp.route("/posts", methods=["GET"])
 @swag_from(specs_dict)
@@ -312,10 +309,16 @@ def get_posts():
     post_query = db.session.query(Post.post_id)
 
     if len(tags_info) != len(tags_list):
-        unknown_tags = [tag for tag in tags_list if tag not in [tag.name for tag in tags_info]]
+        unknown_tags = [
+            tag for tag in tags_list if tag not in [tag.name for tag in tags_info]
+        ]
         # return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 201
         # 未知的tag作为关键词搜索
-        post_query = post_query.filter(text("to_tsvector('zhcfg', title || ' ' || content) @@ websearch_to_tsquery('zhcfg', :query)").params(query=" & ".join(unknown_tags)))
+        post_query = post_query.filter(
+            text(
+                "to_tsvector('zhcfg', title || ' ' || content) @@ websearch_to_tsquery('zhcfg', :query)"
+            ).params(query=" & ".join(unknown_tags))
+        )
 
     for tag in tags_info:
         post_query = post_query.filter(Post.post_tags.any(tag_id=tag.tag_id))
@@ -325,7 +328,7 @@ def get_posts():
 
     if favorited_by > 0:
         post_query = post_query.filter(Post.favorites.any(account_id=favorited_by))
-    
+
     post_query = post_query.filter(Post.rating.in_(ratings.split()))
 
     order_dict = {
@@ -338,7 +341,9 @@ def get_posts():
 
     if order == "rank" or order == "random":
         # 最近一个月的热度
-        post_query = post_query.filter(Post.created_at > datetime.now() - timedelta(days=30))
+        post_query = post_query.filter(
+            Post.created_at > datetime.now() - timedelta(days=30)
+        )
 
     if before_id > 0:
         post_query = post_query.filter(Post.post_id < before_id)
@@ -346,7 +351,7 @@ def get_posts():
     post_query = post_query.order_by(order_dict[order])
     post_query = post_query.limit(per_page).offset(offset)
     # 设置超时
-    db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
+    db.session.execute(text("SET SESSION STATEMENT_TIMEOUT TO 1000"))
 
     url_dict = {
         "preview": Image.preview_url,
@@ -354,14 +359,25 @@ def get_posts():
         "original": Image.original_url,
     }
 
-    subquery = db.session.query(Image.post_id, func.min(Image.image_id).label('min_image_id'), func.count(Image.image_id).label('image_count'))\
-        .filter(Image.post_id.in_(post_query.subquery()))\
-        .group_by(Image.post_id).subquery()
-    post_query = db.session.query(Post, url_dict[quality], Image.width, Image.height, subquery.c.image_count)\
-        .select_from(Post)\
-        .join(subquery, and_(Post.post_id == subquery.c.post_id))\
-        .join(Image, Image.image_id == subquery.c.min_image_id)\
+    subquery = (
+        db.session.query(
+            Image.post_id,
+            func.min(Image.image_id).label("min_image_id"),
+            func.count(Image.image_id).label("image_count"),
+        )
+        .filter(Image.post_id.in_(post_query.subquery()))
+        .group_by(Image.post_id)
+        .subquery()
+    )
+    post_query = (
+        db.session.query(
+            Post, url_dict[quality], Image.width, Image.height, subquery.c.image_count
+        )
+        .select_from(Post)
+        .join(subquery, and_(Post.post_id == subquery.c.post_id))
+        .join(Image, Image.image_id == subquery.c.min_image_id)
         .order_by(order_dict[order])
+    )
 
     posts = {}
     try:
@@ -370,18 +386,24 @@ def get_posts():
             # 若url以mp4, webm, ogg结尾，降级为preview
             if preview_url.split(".")[-1] in ["mp4", "webm", "ogg"]:
                 preview_url = post.images[0].preview_url
-            posts[post.post_id].update({"preview_url": preview_url, "width": width, "height": height, "image_count": image_count})
+            posts[post.post_id].update(
+                {
+                    "preview_url": preview_url,
+                    "width": width,
+                    "height": height,
+                    "image_count": image_count,
+                }
+            )
     except OperationalError as e:
         if "canceling statement due to statement timeout" in str(e):
             return jsonify({"message": "query timeout (1000ms)"}), 504
         else:
             raise e
 
-
     res = [post for post in posts.values()]
 
-
     return jsonify(res), 200
+
 
 @bp.route("/posts/<int:post_id>", methods=["GET"])
 def get_post(post_id):
@@ -420,13 +442,17 @@ def get_post(post_id):
 
     res["self_vote"] = 0
     if current_user.is_authenticated:
-        vote = Vote.query.filter_by(account_id=current_user.account_id, post_id=post_id).first()
+        vote = Vote.query.filter_by(
+            account_id=current_user.account_id, post_id=post_id
+        ).first()
         if vote is not None:
             res["self_vote"] = vote.value
 
     res["self_fav"] = 0
     if current_user.is_authenticated:
-        fav = Favorite.query.filter_by(account_id=current_user.account_id, post_id=post_id).first()
+        fav = Favorite.query.filter_by(
+            account_id=current_user.account_id, post_id=post_id
+        ).first()
         if fav is not None:
             res["self_fav"] = 1
 
@@ -437,12 +463,14 @@ def get_post(post_id):
     tags_query = db.session.query(Tag).join(PostTag).filter(PostTag.post_id == post_id)
 
     res["tags"] = [tag.to_dict() for tag in tags_query.all()]
-        
+
     return jsonify(res), 200
+
 
 from sqlalchemy import insert
 from wakuwaku.utils import save_file
 from PIL import Image as PILImage
+
 
 @bp.route("/posts", methods=["POST"])
 @login_required
@@ -530,15 +558,19 @@ def create_post():
     except KeyError:
         return jsonify({"message": "invalid parameters"}), 400
 
-    insert_post = insert(Post).values(
-        account_id=current_user.account_id,
-        title=title,
-        content=content,
-        source=source,
-        score=0,
-        fav_count=0,
-        rating=rating,
-    ).returning(Post.post_id)
+    insert_post = (
+        insert(Post)
+        .values(
+            account_id=current_user.account_id,
+            title=title,
+            content=content,
+            source=source,
+            score=0,
+            fav_count=0,
+            rating=rating,
+        )
+        .returning(Post.post_id)
+    )
 
     # 添加 tags
     insert_tags = []
@@ -547,8 +579,13 @@ def create_post():
         tags_info = tag_query.all()
 
         if len(tags_info) != len(tags):
-            unknown_tags = [tag for tag in tags if tag not in [tag.name for tag in tags_info]]
-            return jsonify({"message": "tags not found", "unknown_tags": unknown_tags}), 422
+            unknown_tags = [
+                tag for tag in tags if tag not in [tag.name for tag in tags_info]
+            ]
+            return (
+                jsonify({"message": "tags not found", "unknown_tags": unknown_tags}),
+                422,
+            )
 
         insert_tags = [{"tag_id": tag.tag_id} for tag in tags_info]
 
@@ -570,41 +607,47 @@ def create_post():
         sample_url = save_file(sample_image, "sample")
 
         # 添加到数据库
-        insert_images.append({
-            "name": image.filename.split(".")[0][:255],
-            "original_url": original_url,
-            "preview_url": preview_url,
-            "sample_url": sample_url,
-            "width": original_image.width,
-            "height": original_image.height,
-        })
+        insert_images.append(
+            {
+                "name": image.filename.split(".")[0][:255],
+                "original_url": original_url,
+                "preview_url": preview_url,
+                "sample_url": sample_url,
+                "width": original_image.width,
+                "height": original_image.height,
+            }
+        )
 
     post_id = db.session.execute(insert_post).fetchone()[0]
 
     for tag in insert_tags:
-        db.session.add(PostTag(
-            post_id=post_id,
-            tag_id=tag["tag_id"],
-        ))
+        db.session.add(
+            PostTag(
+                post_id=post_id,
+                tag_id=tag["tag_id"],
+            )
+        )
 
     for image in insert_images:
-        db.session.add(Image(
-            post_id=post_id,
-            name=image["name"],
-            original_url=image["original_url"],
-            preview_url=image["preview_url"],
-            sample_url=image["sample_url"],
-            width=image["width"],
-            height=image["height"],
-        ))
+        db.session.add(
+            Image(
+                post_id=post_id,
+                name=image["name"],
+                original_url=image["original_url"],
+                preview_url=image["preview_url"],
+                sample_url=image["sample_url"],
+                width=image["width"],
+                height=image["height"],
+            )
+        )
 
     db.session.commit()
 
-    return jsonify({
-        "message": "post created successfully",
-        "post_id": post_id}), 201
+    return jsonify({"message": "post created successfully", "post_id": post_id}), 201
+
 
 from sqlalchemy import delete
+
 
 @bp.route("/posts", methods=["DELETE"])
 @login_required
