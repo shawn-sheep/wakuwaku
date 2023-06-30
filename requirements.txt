@@ -1,5 +1,9 @@
+flasgger==0.9.7b2
 Flask==2.2.2
+Flask_Caching==2.0.1
 Flask_Login==0.6.2
-flask_sqlalchemy==3.0.3
+flask_sqlalchemy==3.0.5
+Pillow==9.3.0
+Pillow==9.5.0
 SQLAlchemy==1.4.39
 Werkzeug==2.2.2

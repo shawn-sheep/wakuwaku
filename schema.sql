@@ -76,3 +76,20 @@ CREATE TABLE favorite (
     FOREIGN KEY (post_id) REFERENCES post(post_id) ON DELETE CASCADE,
     FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
+
+CREATE INDEX post_index ON public.post_tag USING btree (post_id)
+CREATE INDEX tag_index ON public.post_tag USING btree (tag_id)
+CREATE UNIQUE INDEX tag_post_index ON public.post_tag USING btree (tag_id, post_id)
+CREATE INDEX post_index_image ON public.image USING btree (post_id)
+CREATE INDEX tag_count_index ON public.tag USING btree (count)
+CREATE INDEX score_index_post ON public.post USING btree (score)
+CREATE INDEX time_index ON public.post USING btree (created_at)
+CREATE INDEX score_post_id_index ON public.post USING btree (score, post_id)
+CREATE INDEX account_id_index_post ON public.post USING btree (account_id)
+CREATE UNIQUE INDEX account_username_key ON public.account USING btree (username)
+
+ALTER TABLE post_tag ALTER COLUMN tag_id SET STATISTICS 10000;
+
+CREATE TEXT SEARCH CONFIGURATION zhcfg (PARSER = zhparser);
+ALTER TEXT SEARCH CONFIGURATION zhcfg ADD MAPPING FOR n,v,a,i,e,l WITH simple;
+CREATE INDEX idx_fts_title_content ON post USING gin(to_tsvector('zhcfg', title || ' ' || content));
