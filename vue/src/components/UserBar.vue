@@ -10,8 +10,8 @@
         <div class="user-bar-item" style="font-size: 12px">{{ store.state.user.email }}</div>
         <div style="height: 20px"></div>
         <div class="user-bar-item2" @click="goto(`/user/${store.state.user.account_id}`, true)">个人主页</div>
-        <div class="user-bar-item2">我的收藏</div>
-        <div class="user-bar-item2">浏览记录</div>
+        <div class="user-bar-item2" @click="goto('/userinfo', true)">信息修改</div>
+        <div class="user-bar-item2" @click="goto('/upload', true)">上传图片</div>
         <div style="height: 60px"></div>
         <div class="user-bar-item2" @click="logout()">登出</div>
       </div>
