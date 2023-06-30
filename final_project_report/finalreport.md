@@ -107,4 +107,9 @@ CREATE TABLE favorite (
     FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
 ```
+## 用户界面介绍
+
+## 平台选择
+
+## 数据库性能调教
 
