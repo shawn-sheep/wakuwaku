@@ -116,3 +116,79 @@ CREATE TABLE favorite (
 
 ## 数据库性能调教
 
+### Posts 查询
+
+查询符合条件的是本站的核心功能，应该可以在各种排序顺序、筛选条件下快速查询到结果。
+
+#### 1. 根据标签查询
+
+第一个核心条件是标签，用户可以通过标签来筛选帖子。
+
+##### 1.1 单标签查询
+   
+考虑在只有主键索引 `post_tag_pkey(post_id, tag_id)` 的情况下，查询某个标签下最近发布的100条帖子。（post_id 与发布时间成正相关）
+
+```sql
+BEGIN;
+DROP INDEX tag_post_index;
+DROP INDEX tag_index;
+
+EXPLAIN ANALYSE
+SELECT post_id FROM post_tag WHERE tag_id = 1442931 -- tag: 1442931	4	amiya_(arknights)	5150
+ORDER BY post_id DESC
+LIMIT 100;
+
+ROLLBACK;
+```
+
+```sql
+Limit  (cost=0.56..22632.54 rows=100 width=4) (actual time=1.297..91.127 rows=100 loops=1)
+  ->  Index Only Scan Backward using post_tag_pkey on post_tag  (cost=0.56..458750.60 rows=2027 width=4) (actual time=1.296..91.103 rows=100 loops=1)
+        Index Cond: (tag_id = 1442931)
+        Heap Fetches: 100
+Planning Time: 0.205 ms
+Execution Time: 91.168 ms
+```
+
+可以看到在只有主键索引的情况下，查询计划为 `Index Only Scan Backward using post_tag_pkey on post_tag`，也就是从高到低遍历所有的 `post_tag`，然后再根据 `tag_id` 筛选出符合条件的结果，这个查询计划的时间复杂度为 `O(n)`，查询时间随着数据量（以及`OFFSET`）的增加而增加。
+
+此时我们可以考虑为 `tag_id` 建立索引，这样就可以直接根据 `tag_id` 筛选出符合条件的结果。
+
+```sql
+CREATE INDEX tag_index ON public.post_tag USING btree (tag_id)
+```
+
+```sql
+Limit  (cost=2336.44..2336.69 rows=100 width=4) (actual time=4.264..4.275 rows=100 loops=1)
+  ->  Sort  (cost=2336.44..2341.51 rows=2027 width=4) (actual time=4.263..4.267 rows=100 loops=1)
+        Sort Key: post_id DESC
+        Sort Method: top-N heapsort  Memory: 34kB
+        ->  Index Scan using tag_index on post_tag  (cost=0.56..2258.97 rows=2027 width=4) (actual time=1.436..3.833 rows=2162 loops=1)
+              Index Cond: (tag_id = 1442931)
+Planning Time: 0.918 ms
+Execution Time: 4.327 ms
+```
+
+可以看到查询计划为 `Index Scan using tag_index on post_tag`，也就是根据 `tag_id` 筛选出符合条件的结果，然后再根据 `post_id` 降序排序，最后取前100条结果。
+
+这个用时已经改进了很多，不过 `Sort` 还是一个阻塞算子，也就是需要先找到所有符合条件的结果，然后再进行排序，这个查询计划的时间复杂度为 `O(nlogn)`，其中 `n` 为符合条件的结果数量，测试语句中的 `tag` 只有 `5150` 条记录，所以用时较短，若是 `tag` 的数量更多，用时会更长。
+
+此时考虑建立联合索引 `tag_post_index(tag_id, post_id)`，这样就可以直接根据 `tag_id` 筛选出符合条件的结果，并且已经按照 `post_id` 降序排序，不需要再进行排序。
+
+```sql
+CREATE UNIQUE INDEX tag_post_index ON public.post_tag USING btree (tag_id, post_id)
+```
+
+```sql
+Limit  (cost=0.56..112.03 rows=100 width=4) (actual time=0.027..0.087 rows=100 loops=1)
+  ->  Index Only Scan Backward using tag_post_index on post_tag  (cost=0.56..2260.01 rows=2027 width=4) (actual time=0.026..0.078 rows=100 loops=1)
+        Index Cond: (tag_id = 1442931)
+        Heap Fetches: 100
+Planning Time: 0.222 ms
+Execution Time: 0.119 ms
+```
+
+可见执行时间只需要 `0.119 ms`，不过当 `OFFSET` 较大时，用时会变长，因为需要先遍历 `OFFSET` 个结果，因此在实际操作中，我们可以让前端记录上次查询的最后一个 `post_id`，然后在下次查询时，直接从这个 `post_id` 直接开始遍历。
+
+##### 1.2 多标签查询
+
