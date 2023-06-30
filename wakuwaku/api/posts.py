@@ -178,6 +178,7 @@ specs_dict = {
 specs_dict["definitions"]["PostPreview"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostPreview"]["properties"]}
 specs_dict["definitions"]["PostDetail"]["properties"] = {**specs_dict["definitions"]["Post"]["properties"], **specs_dict["definitions"]["PostDetail"]["properties"]}
 
+from datetime import datetime, timedelta
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import func, and_, text
 
@@ -230,7 +231,7 @@ def get_posts():
           type: string
           description: Order of the posts.
           default: "new"
-          enum: ["new", "old", "score", "rank"]
+          enum: ["new", "old", "score", "rank", "random"]
         - in: query
           name: quality
           type: string
@@ -294,7 +295,7 @@ def get_posts():
             if rating not in ["g", "s", "q", "e"]:
                 raise ValueError
         order = request.args.get("order", "new")
-        if order not in ["new", "old", "score", "rank"]:
+        if order not in ["new", "old", "score", "rank", "random"]:
             raise ValueError
         quality = request.args.get("quality", "preview")
         if quality not in ["preview", "sample", "original"]:
@@ -332,11 +333,11 @@ def get_posts():
         "old": Post.post_id.asc(),
         "score": text("score desc, post.post_id desc"),
         "rank": text("score desc, post.post_id desc"),
+        "random": text("random()"),
     }
 
-    if order == "rank":
-        # 最近一周的热度
-        from datetime import datetime, timedelta
+    if order == "rank" or order == "random":
+        # 最近一个月的热度
         post_query = post_query.filter(Post.created_at > datetime.now() - timedelta(days=30))
 
     if before_id > 0:
@@ -345,7 +346,7 @@ def get_posts():
     post_query = post_query.order_by(order_dict[order])
     post_query = post_query.limit(per_page).offset(offset)
     # 设置超时
-    db.session.execute(text('SET SESSION STATEMENT_TIMEOUT TO 1000'))
+    db.session.execute("SET SESSION STATEMENT_TIMEOUT TO 1000")
 
     url_dict = {
         "preview": Image.preview_url,
