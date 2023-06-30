@@ -5,7 +5,7 @@
       :type="'single'" :selected-options="orderOptions"
       @update:selected-options="onUpdateOrderOptions"
     ></WakuButtonGroup>
-    <WakuButtonGroup :options="['G', 'S', 'Q', 'E']" class="rating-options"
+    <WakuButtonGroup :options="['G', 'S', /* 'Q', 'E' */]" class="rating-options"
       :type="'multiple'" :selected-options="ratingsOptions"
       @update:selected-options="onUpdateRatingOptions"
     ></WakuButtonGroup>

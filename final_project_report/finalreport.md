@@ -300,7 +300,7 @@ Planning Time: 0.654 ms
 Execution Time: 1.050 ms
 ```
 
-可以看到，优化器把 `post_id IN subquery` 的操作转换成了 `Nested Loop` 算子，并从统计信息（由于默认的统计）中发现 `amiya_(arknights)` 的结果集较小，因此把 `amiya_(arknights)` 作为外层循环，把 `1girl` 作为内层循环，这样就可以避免把 `1girl` 的所有结果都搜出来了，而是在遍历 `amiya_(arknights)` 的结果时，每次都去 `1girl` 的结果集中查找，这样就可以把时间复杂度降低到 `O(n)`，其中 `n` 为 `amiya_(arknights)` 的结果集的大小。（有 `LIMIT` 限制时，时间取决于什么时候找到 `LIMIT` 条记录）
+可以看到，优化器把 `post_id IN subquery` 的操作转换成了 `Nested Loop` 算子，并从统计信息中发现 `amiya_(arknights)` 的结果集较小，因此把 `amiya_(arknights)` 作为外层循环，把 `1girl` 作为内层循环，这样就可以避免把 `1girl` 的所有结果都搜出来了，而是在遍历 `amiya_(arknights)` 的结果时，每次都去 `1girl` 的结果集中查找，这样就可以把时间复杂度降低到 `O(n)`，其中 `n` 为 `amiya_(arknights)` 的结果集的大小。（有 `LIMIT` 限制时，时间取决于什么时候找到 `LIMIT` 条记录）
 
 ##### 1.3 按分数排序
 
