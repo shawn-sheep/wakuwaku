@@ -3,10 +3,9 @@
     <div style="font-weight: 800; font-size: 20px;padding-left: 40px;">
       <div style="padding-right: 20px; cursor: pointer" @click="goto('/home')">WAKUWAKU</div>
       <div class="tool-bar">
-        <tool-bar-item>插画</tool-bar-item>
         <tool-bar-item @click="goto('/tags')">标签</tool-bar-item>
-        <tool-bar-item>作者</tool-bar-item>
-        <tool-bar-item>排行榜</tool-bar-item>
+        <tool-bar-item @click="goto('/search?order=rank')">排行榜</tool-bar-item>
+        <tool-bar-item @click="goto('/search?order=new')">最新更新</tool-bar-item>
       </div>
     </div>
     <div style="flex: 1; margin-right: 20px;max-width: 500px;">
