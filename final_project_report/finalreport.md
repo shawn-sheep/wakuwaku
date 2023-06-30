@@ -107,9 +107,12 @@ CREATE TABLE favorite (
     FOREIGN KEY (account_id) REFERENCES account(account_id)
 );
 ```
+
 ## 用户界面介绍
 
 ## 平台选择
+
+我们选择的平台是Flask和Vue.js，Flask是一个基于Python的轻量级Web应用框架，Vue.js是一个构建数据驱动的web界面的渐进式框架，我们将使用Flask作为后端框架，Vue.js作为前端框架，实现一个基于Web的二次元插画分享站。
 
 ## 数据库性能调教
 
