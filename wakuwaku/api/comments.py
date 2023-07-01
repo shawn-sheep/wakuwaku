@@ -205,6 +205,7 @@ def create_comment():
     except (TypeError, ValueError):
         return jsonify({"message": "invalid parameters"}), 400
 
+    if parent_id == 0: parent_id = None
     comment = Comment(post_id=post_id, parent_id=parent_id, account_id=current_user.account_id, content=content)
     db.session.add(comment)
     db.session.commit()
