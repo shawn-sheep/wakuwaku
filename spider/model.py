@@ -71,7 +71,7 @@ class Comment(Base):
     
     comment_id = sa.Column(sa.Integer, primary_key=True)
     post_id = sa.Column(sa.Integer, sa.ForeignKey('post.post_id'), nullable=False)
-    parent_id = sa.Column(sa.Integer, sa.ForeignKey('comment.comment_id'))
+    parent_id = sa.Column(sa.Integer, sa.ForeignKey('comment.comment_id'), default=None)
     account_id = sa.Column(sa.Integer, sa.ForeignKey('account.account_id'), nullable=False)
     content = sa.Column(sa.TEXT, nullable=False)
     created_at = sa.Column(sa.TIMESTAMP, nullable=False, default=sa.func.current_timestamp())
